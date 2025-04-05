@@ -1,0 +1,134 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.smart_mall_li_cr_springboot2.mapper.MallOrderMapper">
+
+    <resultMap id="BaseResultMap" type="com.example.smart_mall_li_cr_springboot2.pojo.MallOrder">
+            <id property="id" column="id" />
+            <result property="orderNo" column="order_no" />
+            <result property="userId" column="user_id" />
+            <result property="totalAmount" column="total_amount" />
+            <result property="actualAmount" column="actual_amount" />
+            <result property="status" column="status" />
+            <result property="addressInfo" column="address_info" />
+            <result property="paymentTime" column="payment_time" />
+            <result property="deliveryTime" column="delivery_time" />
+            <result property="confirmTime" column="confirm_time" />
+            <result property="createTime" column="create_time" />
+            <result property="updateTime" column="update_time" />
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id,order_no,user_id,total_amount,actual_amount,status,
+        address_info,payment_time,delivery_time,confirm_time,create_time,
+        update_time
+    </sql>
+
+    <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List" />
+        from mall_order
+        where  id = #{id} 
+    </select>
+
+    <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
+        delete from mall_order
+        where  id = #{id} 
+    </delete>
+    <insert id="insert" keyColumn="id" keyProperty="id" parameterType="com.example.smart_mall_li_cr_springboot2.pojo.MallOrder" useGeneratedKeys="true">
+        insert into mall_order
+        ( id,order_no,user_id,total_amount,actual_amount,status,
+        address_info,payment_time,delivery_time,confirm_time,create_time,
+        update_time)
+        values (#{id},#{orderNo},#{userId},#{totalAmount},#{actualAmount},#{status},
+        #{addressInfo},#{paymentTime},#{deliveryTime},#{confirmTime},#{createTime},
+        #{updateTime})
+    </insert>
+    <insert id="insertSelective" keyColumn="id" keyProperty="id" parameterType="com.example.smart_mall_li_cr_springboot2.pojo.MallOrder" useGeneratedKeys="true">
+        insert into mall_order
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+                <if test="id != null">id,</if>
+                <if test="orderNo != null">order_no,</if>
+                <if test="userId != null">user_id,</if>
+                <if test="totalAmount != null">total_amount,</if>
+                <if test="actualAmount != null">actual_amount,</if>
+                <if test="status != null">status,</if>
+                <if test="addressInfo != null">address_info,</if>
+                <if test="paymentTime != null">payment_time,</if>
+                <if test="deliveryTime != null">delivery_time,</if>
+                <if test="confirmTime != null">confirm_time,</if>
+                <if test="createTime != null">create_time,</if>
+                <if test="updateTime != null">update_time,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+                <if test="id != null">#{id},</if>
+                <if test="orderNo != null">#{orderNo},</if>
+                <if test="userId != null">#{userId},</if>
+                <if test="totalAmount != null">#{totalAmount},</if>
+                <if test="actualAmount != null">#{actualAmount},</if>
+                <if test="status != null">#{status},</if>
+                <if test="addressInfo != null">#{addressInfo},</if>
+                <if test="paymentTime != null">#{paymentTime},</if>
+                <if test="deliveryTime != null">#{deliveryTime},</if>
+                <if test="confirmTime != null">#{confirmTime},</if>
+                <if test="createTime != null">#{createTime},</if>
+                <if test="updateTime != null">#{updateTime},</if>
+        </trim>
+    </insert>
+    <update id="updateByPrimaryKeySelective" parameterType="com.example.smart_mall_li_cr_springboot2.pojo.MallOrder">
+        update mall_order
+        <set>
+                <if test="orderNo != null">
+                    order_no = #{orderNo},
+                </if>
+                <if test="userId != null">
+                    user_id = #{userId},
+                </if>
+                <if test="totalAmount != null">
+                    total_amount = #{totalAmount},
+                </if>
+                <if test="actualAmount != null">
+                    actual_amount = #{actualAmount},
+                </if>
+                <if test="status != null">
+                    status = #{status},
+                </if>
+                <if test="addressInfo != null">
+                    address_info = #{addressInfo},
+                </if>
+                <if test="paymentTime != null">
+                    payment_time = #{paymentTime},
+                </if>
+                <if test="deliveryTime != null">
+                    delivery_time = #{deliveryTime},
+                </if>
+                <if test="confirmTime != null">
+                    confirm_time = #{confirmTime},
+                </if>
+                <if test="createTime != null">
+                    create_time = #{createTime},
+                </if>
+                <if test="updateTime != null">
+                    update_time = #{updateTime},
+                </if>
+        </set>
+        where   id = #{id} 
+    </update>
+    <update id="updateByPrimaryKey" parameterType="com.example.smart_mall_li_cr_springboot2.pojo.MallOrder">
+        update mall_order
+        set 
+            order_no =  #{orderNo},
+            user_id =  #{userId},
+            total_amount =  #{totalAmount},
+            actual_amount =  #{actualAmount},
+            status =  #{status},
+            address_info =  #{addressInfo},
+            payment_time =  #{paymentTime},
+            delivery_time =  #{deliveryTime},
+            confirm_time =  #{confirmTime},
+            create_time =  #{createTime},
+            update_time =  #{updateTime}
+        where   id = #{id} 
+    </update>
+</mapper>

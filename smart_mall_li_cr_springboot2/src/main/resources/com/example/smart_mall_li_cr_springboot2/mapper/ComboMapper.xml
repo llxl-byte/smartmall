@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.smart_mall_li_cr_springboot2.mapper.ComboMapper">
+
+    <resultMap id="BaseResultMap" type="com.example.smart_mall_li_cr_springboot2.pojo.Combo">
+            <id property="id" column="id" />
+            <result property="name" column="name" />
+            <result property="description" column="description" />
+            <result property="price" column="price" />
+            <result property="originalPrice" column="original_price" />
+            <result property="mainImage" column="main_image" />
+            <result property="isOnSale" column="is_on_sale" />
+            <result property="createTime" column="create_time" />
+            <result property="updateTime" column="update_time" />
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id,name,description,price,original_price,main_image,
+        is_on_sale,create_time,update_time
+    </sql>
+
+    <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List" />
+        from combo
+        where  id = #{id} 
+    </select>
+
+    <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
+        delete from combo
+        where  id = #{id} 
+    </delete>
+    <insert id="insert" keyColumn="id" keyProperty="id" parameterType="com.example.smart_mall_li_cr_springboot2.pojo.Combo" useGeneratedKeys="true">
+        insert into combo
+        ( id,name,description,price,original_price,main_image,
+        is_on_sale,create_time,update_time)
+        values (#{id},#{name},#{description},#{price},#{originalPrice},#{mainImage},
+        #{isOnSale},#{createTime},#{updateTime})
+    </insert>
+    <insert id="insertSelective" keyColumn="id" keyProperty="id" parameterType="com.example.smart_mall_li_cr_springboot2.pojo.Combo" useGeneratedKeys="true">
+        insert into combo
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+                <if test="id != null">id,</if>
+                <if test="name != null">name,</if>
+                <if test="description != null">description,</if>
+                <if test="price != null">price,</if>
+                <if test="originalPrice != null">original_price,</if>
+                <if test="mainImage != null">main_image,</if>
+                <if test="isOnSale != null">is_on_sale,</if>
+                <if test="createTime != null">create_time,</if>
+                <if test="updateTime != null">update_time,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+                <if test="id != null">#{id},</if>
+                <if test="name != null">#{name},</if>
+                <if test="description != null">#{description},</if>
+                <if test="price != null">#{price},</if>
+                <if test="originalPrice != null">#{originalPrice},</if>
+                <if test="mainImage != null">#{mainImage},</if>
+                <if test="isOnSale != null">#{isOnSale},</if>
+                <if test="createTime != null">#{createTime},</if>
+                <if test="updateTime != null">#{updateTime},</if>
+        </trim>
+    </insert>
+    <update id="updateByPrimaryKeySelective" parameterType="com.example.smart_mall_li_cr_springboot2.pojo.Combo">
+        update combo
+        <set>
+                <if test="name != null">
+                    name = #{name},
+                </if>
+                <if test="description != null">
+                    description = #{description},
+                </if>
+                <if test="price != null">
+                    price = #{price},
+                </if>
+                <if test="originalPrice != null">
+                    original_price = #{originalPrice},
+                </if>
+                <if test="mainImage != null">
+                    main_image = #{mainImage},
+                </if>
+                <if test="isOnSale != null">
+                    is_on_sale = #{isOnSale},
+                </if>
+                <if test="createTime != null">
+                    create_time = #{createTime},
+                </if>
+                <if test="updateTime != null">
+                    update_time = #{updateTime},
+                </if>
+        </set>
+        where   id = #{id} 
+    </update>
+    <update id="updateByPrimaryKey" parameterType="com.example.smart_mall_li_cr_springboot2.pojo.Combo">
+        update combo
+        set 
+            name =  #{name},
+            description =  #{description},
+            price =  #{price},
+            original_price =  #{originalPrice},
+            main_image =  #{mainImage},
+            is_on_sale =  #{isOnSale},
+            create_time =  #{createTime},
+            update_time =  #{updateTime}
+        where   id = #{id} 
+    </update>
+</mapper>

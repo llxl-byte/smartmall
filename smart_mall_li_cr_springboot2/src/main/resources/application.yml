@@ -1,0 +1,39 @@
+#告诉mybatis xml放在那
+mybatis:
+  #classpath代表的是resources文件夹
+  mapper-locations: classpath:com/example/smart_mall_li_cr_springboot2/mapper/*.xml
+server:
+  port: 8083
+  # # 允许从任何主机访问
+  # address: 0.0.0.0
+spring:
+  main:
+    allow-circular-references: true
+  datasource:
+    #      有的mysql如5.0 下面必须改成com.mysql.jdbc.Driver
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    #改为3306端口
+    url: jdbc:mysql://127.0.0.1:3306/smart_mall_li_cr_springboot2?useUnicode=true&characterEncoding=UTF-8&serverTimezone=GMT%2b8
+    username: root
+    #密码放在''中，不加‘’也可以
+    password: '1234'
+  # knife4j配置
+  mvc:
+    path match:
+      matching-strategy: ant_path_matcher
+#配置日志，显示sql
+# 日志配置
+logging:
+  level:
+    # 设置edu.hpu包下的所有Mapper接口的日志级别为DEBUG
+    edu.hpu: debug
+    # 显示SQL语句
+    org.apache.ibatis: debug
+    # 如果需要更详细的日志信息，可以设置为trace
+    # org.apache.ibatis: trace
+# 分页框架PageHelper配置
+pagehelper:
+  helper-dialect: mysql
+  reasonable: true
+  support-methods-arguments: true
+  params: count=countSql

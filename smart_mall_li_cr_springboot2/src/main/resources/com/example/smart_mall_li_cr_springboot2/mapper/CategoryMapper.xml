@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.smart_mall_li_cr_springboot2.mapper.CategoryMapper">
+
+    <resultMap id="BaseResultMap" type="com.example.smart_mall_li_cr_springboot2.pojo.Category">
+            <id property="id" column="id" />
+            <result property="name" column="name" />
+            <result property="icon" column="icon" />
+            <result property="sort" column="sort" />
+            <result property="parentId" column="parent_id" />
+            <result property="isVisible" column="is_visible" />
+            <result property="createTime" column="create_time" />
+            <result property="updateTime" column="update_time" />
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id,name,icon,sort,parent_id,is_visible,
+        create_time,update_time
+    </sql>
+
+    <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List" />
+        from category
+        where  id = #{id} 
+    </select>
+    <select id="selectAll" resultType="com.example.smart_mall_li_cr_springboot2.pojo.Category">
+        select id,name,create_time as createTime from category
+    </select>
+
+    <select id="selectByParentId" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List" />
+        from category
+        where parent_id = #{parentId}
+    </select>
+
+<!--    <select id="selectByName" parameterType="java.lang.String" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List" />
+        from category
+        where name like concat('%', #{name}, '%')
+    </select>-->
+
+    <select id="selectByItemName" parameterType="java.lang.String" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List" />
+        from category
+        where name like concat('%', #{name}, '%')
+    </select>
+
+    <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
+        delete from category
+        where  id = #{id} 
+    </delete>
+    <insert id="insert" keyColumn="id" keyProperty="id" parameterType="com.example.smart_mall_li_cr_springboot2.pojo.Category" useGeneratedKeys="true">
+        insert into category
+        ( id,name,icon,sort,parent_id,is_visible,
+        create_time,update_time)
+        values (#{id},#{name},#{icon},#{sort},#{parentId},#{isVisible},
+        #{createTime},#{updateTime})
+    </insert>
+    <insert id="insertSelective" keyColumn="id" keyProperty="id" parameterType="com.example.smart_mall_li_cr_springboot2.pojo.Category" useGeneratedKeys="true">
+        insert into category
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+                <if test="id != null">id,</if>
+                <if test="name != null">name,</if>
+                <if test="icon != null">icon,</if>
+                <if test="sort != null">sort,</if>
+                <if test="parentId != null">parent_id,</if>
+                <if test="isVisible != null">is_visible,</if>
+                <if test="createTime != null">create_time,</if>
+                <if test="updateTime != null">update_time,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+                <if test="id != null">#{id},</if>
+                <if test="name != null">#{name},</if>
+                <if test="icon != null">#{icon},</if>
+                <if test="sort != null">#{sort},</if>
+                <if test="parentId != null">#{parentId},</if>
+                <if test="isVisible != null">#{isVisible},</if>
+                <if test="createTime != null">#{createTime},</if>
+                <if test="updateTime != null">#{updateTime},</if>
+        </trim>
+    </insert>
+    <update id="updateByPrimaryKeySelective" parameterType="com.example.smart_mall_li_cr_springboot2.pojo.Category">
+        update category
+        <set>
+                <if test="name != null">
+                    name = #{name},
+                </if>
+                <if test="icon != null">
+                    icon = #{icon},
+                </if>
+                <if test="sort != null">
+                    sort = #{sort},
+                </if>
+                <if test="parentId != null">
+                    parent_id = #{parentId},
+                </if>
+                <if test="isVisible != null">
+                    is_visible = #{isVisible},
+                </if>
+                <if test="createTime != null">
+                    create_time = #{createTime},
+                </if>
+                <if test="updateTime != null">
+                    update_time = #{updateTime},
+                </if>
+        </set>
+        where   id = #{id} 
+    </update>
+    <update id="updateByPrimaryKey" parameterType="com.example.smart_mall_li_cr_springboot2.pojo.Category">
+        update category
+        set 
+            name =  #{name},
+            icon =  #{icon},
+            sort =  #{sort},
+            parent_id =  #{parentId},
+            is_visible =  #{isVisible},
+            create_time =  #{createTime},
+            update_time =  #{updateTime}
+        where   id = #{id} 
+    </update>
+</mapper>

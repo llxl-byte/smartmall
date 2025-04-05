@@ -1,0 +1,165 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.smart_mall_li_cr_springboot2.mapper.ItemMapper">
+
+    <resultMap id="BaseResultMap" type="com.example.smart_mall_li_cr_springboot2.pojo.Item">
+            <id property="id" column="id" />
+            <result property="name" column="name" />
+            <result property="price" column="price" />
+            <result property="originalPrice" column="original_price" />
+            <result property="description" column="description" />
+            <result property="detail" column="detail" />
+            <result property="categoryId" column="category_id" />
+            <result property="stock" column="stock" />
+            <result property="sales" column="sales" />
+            <result property="mainImage" column="main_image" />
+            <result property="images" column="images" />
+            <result property="isOnSale" column="is_on_sale" />
+            <result property="createTime" column="create_time" />
+            <result property="updateTime" column="update_time" />
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id,name,price,original_price,description,detail,
+        category_id,stock,sales,main_image,images,
+        is_on_sale,create_time,update_time
+    </sql>
+
+    <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List" />
+        from item
+        where  id = #{id} 
+    </select>
+    <select id="selectByCategoryId" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+        SELECT i.* FROM item i
+        JOIN category c ON i.category_id = c.id
+        WHERE c.id = #{categoryId} OR c.parent_id = #{categoryId}
+    </select>
+    <!--<select id="selectByName" parameterType="java.lang.String" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List" />
+        from category
+        where name like concat('%', #{name}, '%')
+    </select>-->
+    <select id="selectByItemName" parameterType="java.lang.String" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List" />
+        from item
+        where name = #{name}
+    </select>
+
+    <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
+        delete from item
+        where  id = #{id} 
+    </delete>
+    <insert id="insert" keyColumn="id" keyProperty="id" parameterType="com.example.smart_mall_li_cr_springboot2.pojo.Item" useGeneratedKeys="true">
+        insert into item
+        ( id,name,price,original_price,description,detail,
+        category_id,stock,sales,main_image,images,
+        is_on_sale,create_time,update_time)
+        values (#{id},#{name},#{price},#{originalPrice},#{description},#{detail},
+        #{categoryId},#{stock},#{sales},#{mainImage},#{images},
+        #{isOnSale},#{createTime},#{updateTime})
+    </insert>
+    <insert id="insertSelective" keyColumn="id" keyProperty="id" parameterType="com.example.smart_mall_li_cr_springboot2.pojo.Item" useGeneratedKeys="true">
+        insert into item
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+                <if test="id != null">id,</if>
+                <if test="name != null">name,</if>
+                <if test="price != null">price,</if>
+                <if test="originalPrice != null">original_price,</if>
+                <if test="description != null">description,</if>
+                <if test="detail != null">detail,</if>
+                <if test="categoryId != null">category_id,</if>
+                <if test="stock != null">stock,</if>
+                <if test="sales != null">sales,</if>
+                <if test="mainImage != null">main_image,</if>
+                <if test="images != null">images,</if>
+                <if test="isOnSale != null">is_on_sale,</if>
+                <if test="createTime != null">create_time,</if>
+                <if test="updateTime != null">update_time,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+                <if test="id != null">#{id},</if>
+                <if test="name != null">#{name},</if>
+                <if test="price != null">#{price},</if>
+                <if test="originalPrice != null">#{originalPrice},</if>
+                <if test="description != null">#{description},</if>
+                <if test="detail != null">#{detail},</if>
+                <if test="categoryId != null">#{categoryId},</if>
+                <if test="stock != null">#{stock},</if>
+                <if test="sales != null">#{sales},</if>
+                <if test="mainImage != null">#{mainImage},</if>
+                <if test="images != null">#{images},</if>
+                <if test="isOnSale != null">#{isOnSale},</if>
+                <if test="createTime != null">#{createTime},</if>
+                <if test="updateTime != null">#{updateTime},</if>
+        </trim>
+    </insert>
+    <update id="updateByPrimaryKeySelective" parameterType="com.example.smart_mall_li_cr_springboot2.pojo.Item">
+        update item
+        <set>
+                <if test="name != null">
+                    name = #{name},
+                </if>
+                <if test="price != null">
+                    price = #{price},
+                </if>
+                <if test="originalPrice != null">
+                    original_price = #{originalPrice},
+                </if>
+                <if test="description != null">
+                    description = #{description},
+                </if>
+                <if test="detail != null">
+                    detail = #{detail},
+                </if>
+                <if test="categoryId != null">
+                    category_id = #{categoryId},
+                </if>
+                <if test="stock != null">
+                    stock = #{stock},
+                </if>
+                <if test="sales != null">
+                    sales = #{sales},
+                </if>
+                <if test="mainImage != null">
+                    main_image = #{mainImage},
+                </if>
+                <if test="images != null">
+                    images = #{images},
+                </if>
+                <if test="isOnSale != null">
+                    is_on_sale = #{isOnSale},
+                </if>
+                <if test="createTime != null">
+                    create_time = #{createTime},
+                </if>
+                <if test="updateTime != null">
+                    update_time = #{updateTime},
+                </if>
+        </set>
+        where   id = #{id} 
+    </update>
+    <update id="updateByPrimaryKey" parameterType="com.example.smart_mall_li_cr_springboot2.pojo.Item">
+        update item
+        set 
+            name =  #{name},
+            price =  #{price},
+            original_price =  #{originalPrice},
+            description =  #{description},
+            detail =  #{detail},
+            category_id =  #{categoryId},
+            stock =  #{stock},
+            sales =  #{sales},
+            main_image =  #{mainImage},
+            images =  #{images},
+            is_on_sale =  #{isOnSale},
+            create_time =  #{createTime},
+            update_time =  #{updateTime}
+        where   id = #{id} 
+    </update>
+</mapper>

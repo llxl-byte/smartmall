@@ -1,0 +1,22 @@
+{
+  "name": "smart_mall_hx_cr",
+  "version": "1.0.0",
+  "description": "",
+  "main": "main.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev:h5": "vue-cli-service uni-serve"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@dcloudio/uni-cli-i18n": "^2.0.2-4050720250324001",
+    "@dcloudio/uni-cli-shared": "^2.0.2-4050720250324001",
+    "@dcloudio/uni-h5": "^2.0.2-4050720250324001",
+    "@dcloudio/vue-cli-plugin-uni": "^2.0.2-4050720250324001",
+    "@dcloudio/webpack-uni-pages-loader": "^2.0.2-4050720250324001",
+    "@vue/cli-service": "^5.0.8",
+    "vue-template-compiler": "^2.7.16"
+  }
+}

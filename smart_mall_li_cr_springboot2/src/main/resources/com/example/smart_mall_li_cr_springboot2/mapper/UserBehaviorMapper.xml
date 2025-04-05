@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.smart_mall_li_cr_springboot2.mapper.UserBehaviorMapper">
+
+    <resultMap id="BaseResultMap" type="com.example.smart_mall_li_cr_springboot2.pojo.UserBehavior">
+            <id property="id" column="id" />
+            <result property="userId" column="user_id" />
+            <result property="itemId" column="item_id" />
+            <result property="behaviorType" column="behavior_type" />
+            <result property="createTime" column="create_time" />
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id,user_id,item_id,behavior_type,create_time
+    </sql>
+
+    <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List" />
+        from user_behavior
+        where  id = #{id} 
+    </select>
+
+    <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
+        delete from user_behavior
+        where  id = #{id} 
+    </delete>
+    <insert id="insert" keyColumn="id" keyProperty="id" parameterType="com.example.smart_mall_li_cr_springboot2.pojo.UserBehavior" useGeneratedKeys="true">
+        insert into user_behavior
+        ( id,user_id,item_id,behavior_type,create_time)
+        values (#{id},#{userId},#{itemId},#{behaviorType},#{createTime})
+    </insert>
+    <insert id="insertSelective" keyColumn="id" keyProperty="id" parameterType="com.example.smart_mall_li_cr_springboot2.pojo.UserBehavior" useGeneratedKeys="true">
+        insert into user_behavior
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+                <if test="id != null">id,</if>
+                <if test="userId != null">user_id,</if>
+                <if test="itemId != null">item_id,</if>
+                <if test="behaviorType != null">behavior_type,</if>
+                <if test="createTime != null">create_time,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+                <if test="id != null">#{id},</if>
+                <if test="userId != null">#{userId},</if>
+                <if test="itemId != null">#{itemId},</if>
+                <if test="behaviorType != null">#{behaviorType},</if>
+                <if test="createTime != null">#{createTime},</if>
+        </trim>
+    </insert>
+    <update id="updateByPrimaryKeySelective" parameterType="com.example.smart_mall_li_cr_springboot2.pojo.UserBehavior">
+        update user_behavior
+        <set>
+                <if test="userId != null">
+                    user_id = #{userId},
+                </if>
+                <if test="itemId != null">
+                    item_id = #{itemId},
+                </if>
+                <if test="behaviorType != null">
+                    behavior_type = #{behaviorType},
+                </if>
+                <if test="createTime != null">
+                    create_time = #{createTime},
+                </if>
+        </set>
+        where   id = #{id} 
+    </update>
+    <update id="updateByPrimaryKey" parameterType="com.example.smart_mall_li_cr_springboot2.pojo.UserBehavior">
+        update user_behavior
+        set 
+            user_id =  #{userId},
+            item_id =  #{itemId},
+            behavior_type =  #{behaviorType},
+            create_time =  #{createTime}
+        where   id = #{id} 
+    </update>
+</mapper>

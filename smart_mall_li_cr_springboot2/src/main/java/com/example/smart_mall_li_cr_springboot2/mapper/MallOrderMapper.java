@@ -1,0 +1,25 @@
+package com.example.smart_mall_li_cr_springboot2.mapper;
+
+import com.example.smart_mall_li_cr_springboot2.pojo.MallOrder;
+
+/**
+* @author ll.xl
+* @description 针对表【mall_order】的数据库操作Mapper
+* @createDate 2025-03-20 14:45:51
+* @Entity com.example.smart_mall_li_cr_springboot2.pojo.MallOrder
+*/
+public interface MallOrderMapper {
+
+    int deleteByPrimaryKey(Long id);
+
+    int insert(MallOrder record);
+
+    int insertSelective(MallOrder mallOrder);
+
+    MallOrder selectByPrimaryKey(Long id);
+
+    int updateByPrimaryKeySelective(MallOrder record);
+
+    int updateByPrimaryKey(MallOrder record);
+
+}
