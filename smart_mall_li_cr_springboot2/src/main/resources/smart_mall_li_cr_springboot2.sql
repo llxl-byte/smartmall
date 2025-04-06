@@ -287,3 +287,24 @@ CREATE TABLE `user_behavior` (
 /*!40014 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS */;
 /*!40014 SET UNIQUE_CHECKS=@OLD_UNIQUE_CHECKS */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
+
+
+/*Table structure for table `backend_admin` */
+
+DROP TABLE IF EXISTS `backend_admin`;
+
+CREATE TABLE `backend_admin` (
+  `id` int(11) NOT NULL AUTO_INCREMENT COMMENT '主键ID',
+  `username` varchar(50) NOT NULL COMMENT '用户名',
+  `password` varchar(100) NOT NULL COMMENT '密码 (加密存储)',
+  `role` varchar(20) DEFAULT 'admin' COMMENT '角色',
+  `create_time` datetime DEFAULT current_timestamp() COMMENT '创建时间',
+  `update_time` datetime DEFAULT current_timestamp() ON UPDATE current_timestamp() COMMENT '更新时间',
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `uk_username` (`username`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci COMMENT='后台管理员表';
+
+/*Data for the table `backend_admin` */
+-- 可以在这里插入初始管理员数据，例如：
+-- INSERT INTO `backend_admin` (`username`, `password`, `role`) VALUES ('admin', '加密后的密码', 'superadmin');
+

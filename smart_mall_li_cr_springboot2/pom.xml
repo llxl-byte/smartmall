@@ -23,6 +23,13 @@
             <artifactId>mybatis-spring-boot-starter</artifactId>
             <version>2.2.2</version>
         </dependency>
+        <!-- MyBatis-Plus 依赖 -->
+        <dependency>
+            <groupId>com.baomidou</groupId>
+            <artifactId>mybatis-plus-boot-starter</artifactId>
+            <version>3.5.2</version> <!-- 你可以根据需要选择合适的版本 -->
+        </dependency>
+
 
         <dependency>
             <groupId>com.mysql</groupId>

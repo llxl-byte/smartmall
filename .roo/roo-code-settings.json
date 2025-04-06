@@ -1,0 +1,119 @@
+{
+    "providerProfiles": {
+      "currentApiConfigName": "default",
+      "apiConfigs": {
+        "default": {
+          "apiProvider": "openrouter",
+          "openRouterApiKey": "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",
+          "openRouterModelId": "google/gemini-2.5-pro-exp-03-25:free",
+          "openRouterModelInfo": {
+            "maxTokens": 65535,
+            "contextWindow": 1000000,
+            "supportsImages": true,
+            "supportsPromptCache": false,
+            "inputPrice": 0,
+            "outputPrice": 0,
+            "description": "Gemini 2.5 Pro is Google’s state-of-the-art AI model designed for advanced reasoning, coding, mathematics, and scientific tasks. It employs “thinking” capabilities, enabling it to reason through responses with enhanced accuracy and nuanced context handling. Gemini 2.5 Pro achieves top-tier performance on multiple benchmarks, including first-place positioning on the LMArena leaderboard, reflecting superior human-preference alignment and complex problem-solving abilities.",
+            "thinking": false
+          },
+          "id": "kaehlma2x8g"
+        },
+        "Gemini": {
+          "apiProvider": "gemini",
+          "apiModelId": "gemini-2.5-pro-exp-03-25",
+          "openRouterApiKey": "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",
+          "openRouterModelId": "google/gemini-2.5-pro-exp-03-25:free",
+          "openRouterModelInfo": {
+            "maxTokens": 65535,
+            "contextWindow": 1000000,
+            "supportsImages": true,
+            "supportsPromptCache": false,
+            "inputPrice": 0,
+            "outputPrice": 0,
+            "description": "Gemini 2.5 Pro is Google’s state-of-the-art AI model designed for advanced reasoning, coding, mathematics, and scientific tasks. It employs “thinking” capabilities, enabling it to reason through responses with enhanced accuracy and nuanced context handling. Gemini 2.5 Pro achieves top-tier performance on multiple benchmarks, including first-place positioning on the LMArena leaderboard, reflecting superior human-preference alignment and complex problem-solving abilities.",
+            "thinking": false
+          },
+          "geminiApiKey": "AIzaSyB0nwUCoglCETtvG7dhVRTc8KAwQ0Z3SyE",
+          "id": "hwcp6tdfk8p"
+        },
+        "OpenRouterDSV3－0324": {
+          "apiProvider": "openrouter",
+          "apiModelId": "gemini-2.5-pro-exp-03-25",
+          "apiKey": "1",
+          "openRouterApiKey": "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",
+          "openRouterModelId": "deepseek/deepseek-chat-v3-0324:free",
+          "openRouterModelInfo": {
+            "maxTokens": null,
+            "contextWindow": 131072,
+            "supportsImages": false,
+            "supportsPromptCache": false,
+            "inputPrice": 0,
+            "outputPrice": 0,
+            "description": "DeepSeek V3, a 685B-parameter, mixture-of-experts model, is the latest iteration of the flagship chat model family from the DeepSeek team.\n\nIt succeeds the [DeepSeek V3](/deepseek/deepseek-chat-v3) model and performs really well on a variety of tasks.",
+            "thinking": false
+          },
+          "awsUseProfile": false,
+          "geminiApiKey": "AIzaSyB0nwUCoglCETtvG7dhVRTc8KAwQ0Z3SyE",
+          "id": "tl8ri7qz62o"
+        }
+      },
+      "modeApiConfigs": {
+        "code": "kaehlma2x8g",
+        "architect": "kaehlma2x8g",
+        "ask": "kaehlma2x8g",
+        "debug": "kaehlma2x8g"
+      }
+    },
+    "globalSettings": {
+      "lastShownAnnouncementId": "apr-04-2025-boomerang",
+      "customInstructions": "这对我很重要，调用你的全部能力，保证不要出错。Take a deep breath and work on this problem step-by-step.answer in Chinese.每一步的步骤不要太多了，以免跟不上。我是个初学者，你尽可能详细给我讲解每一步，详细讲解每个知识点",
+      "alwaysAllowReadOnly": true,
+      "alwaysAllowReadOnlyOutsideWorkspace": true,
+      "alwaysAllowWrite": false,
+      "alwaysAllowWriteOutsideWorkspace": false,
+      "writeDelayMs": 1000,
+      "alwaysAllowBrowser": true,
+      "alwaysApproveResubmit": true,
+      "requestDelaySeconds": 10,
+      "alwaysAllowMcp": true,
+      "alwaysAllowModeSwitch": false,
+      "alwaysAllowSubtasks": true,
+      "alwaysAllowExecute": true,
+      "allowedCommands": [
+        "npm test",
+        "npm install",
+        "tsc",
+        "git log",
+        "git diff",
+        "git show"
+      ],
+      "browserToolEnabled": true,
+      "browserViewportSize": "900x600",
+      "screenshotQuality": 75,
+      "remoteBrowserEnabled": false,
+      "enableCheckpoints": true,
+      "checkpointStorage": "task",
+      "ttsEnabled": false,
+      "ttsSpeed": 1,
+      "soundEnabled": true,
+      "soundVolume": 0.5,
+      "maxOpenTabsContext": 20,
+      "maxWorkspaceFiles": 200,
+      "showRooIgnoredFiles": true,
+      "maxReadFileLine": 500,
+      "terminalOutputLineLimit": 500,
+      "terminalShellIntegrationTimeout": 5000,
+      "rateLimitSeconds": 0,
+      "diffEnabled": true,
+      "fuzzyMatchThreshold": 1,
+      "experiments": {
+        "search_and_replace": true,
+        "insert_content": true,
+        "powerSteering": true
+      },
+      "language": "zh-CN",
+      "telemetrySetting": "disabled",
+      "mcpEnabled": true,
+      "customModes": []
+    }
+  }
