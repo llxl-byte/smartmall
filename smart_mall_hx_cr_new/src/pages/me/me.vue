@@ -6,7 +6,7 @@
 			 <view v-if="!isLogin" class="not-login">
 				<image class="avatar" src="/static/default-avatar.png"></image>
 			<view class="login-btn-area">
-				<button class="login-btn" @click="toLogin">登录/注册</button>
+				<button class="login-btn" @click="goToLogin">登录/注册</button>
 			</view>
 		</view>
 		<!-- 已登录状态 -->
@@ -41,9 +41,9 @@
 				<text class="menu-arrow">></text>
 			</view>
 			<view v-if="isLogin" class="logout-container" @click="logout">
-				
+
 				<text class="logout-text">退出登录</text>
-				
+
 			</view>
 		</view>
 	</view>
@@ -60,7 +60,7 @@
 			return {
 				isLogin: false,
 				userInfo: {}
-				
+
 			}
 		},
 		onShow() {
@@ -92,7 +92,7 @@
 					url: '/pages/login/login'
 				});
 			},
-			
+
 			// 跳转到订单页
 			goToOrders() {
 				if (!this.isLogin) {
@@ -103,7 +103,19 @@
 					url: '/pages/orders/orders'
 				});
 			},
-			
+
+			// 跳转到优惠券页
+			goToCoupons() {
+				if (!this.isLogin) {
+					this.goToLogin();
+					return;
+				}
+				// TODO: 确认优惠券页面路径
+				uni.navigateTo({
+					url: '/pages/coupons/coupons' // 假设路径，后续需要确认或创建
+				});
+			},
+
 			// 跳转到地址管理页
 			goToAddress() {
 				if (!this.isLogin) {
@@ -114,14 +126,18 @@
 					url: '/pages/address/address'
 				});
 			},
-			
+
 			// 跳转到设置页
 			goToSettings() {
+				if (!this.isLogin) {
+					this.goToLogin();
+					return;
+				}
 				uni.navigateTo({
 					url: '/pages/settings/settings'
 				});
 			},
-			
+
 			// 退出登录
 			logout() {
 				uni.showModal({
@@ -134,11 +150,11 @@
 							// 清除记住的用户名密码
 							uni.removeStorageSync('savedUsername');
 							uni.removeStorageSync('savedPassword');
-							
+
 							// 更新状态
 							this.isLogin = false;
 							this.userInfo = {};
-							
+
 							uni.showToast({
 								title: '已退出登录',
 								icon: 'success'
@@ -163,9 +179,9 @@
 		// 			url:"/pages/login/login"
 		// 		})
 		// 	}
-			
+
 		// }
-	
+
 </script>
 
 <style>

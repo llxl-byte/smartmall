@@ -28,8 +28,23 @@ data() {
 		username:"",
 		password:"",
 		confirmPassword:"",
-		errorMessage: ""
+		errorMessage: "",
+		baseUrl: ''
 	}
+},
+created() {
+	// 获取当前域名并设置baseUrl
+	const currentUrl = window.location.href;
+	if (currentUrl.includes('.app.github.dev')) {
+		// Codespace环境 - 使用完整的后端 URL
+		// 将前端端口号替换为后端端口号 8083
+		const domain = window.location.hostname;
+		this.baseUrl = `https://${domain.replace('-8080', '-8083')}`;
+	} else {
+		// 本地开发环境
+		this.baseUrl = 'http://127.0.0.1:8083';
+	}
+	console.log('Using API Base URL:', this.baseUrl); // 添加日志便于调试
 },
 methods: {
 	register(){
@@ -53,7 +68,7 @@ methods: {
 		//1，得到用户输入的用户名和密码
 		console.log(this.username)
 		//2,把数据发给服务器
-		let serverUrl="http://127.0.0.1:8083/mallUserRegister?password="+encodeURIComponent(this.password)+"&username="+encodeURIComponent(this.username)
+		let serverUrl=`${this.baseUrl}/mallUserRegister?password=${encodeURIComponent(this.password)}&username=${encodeURIComponent(this.username)}`
 		uni.request({
 			url:serverUrl,
 			fail: (err) => {

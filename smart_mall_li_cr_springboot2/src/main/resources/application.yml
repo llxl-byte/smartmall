@@ -4,8 +4,8 @@ mybatis:
   mapper-locations: classpath:com/example/smart_mall_li_cr_springboot2/mapper/*.xml
 server:
   port: 8083
-  # # 允许从任何主机访问
-  # address: 0.0.0.0
+  # 允许从任何主机访问
+  address: 0.0.0.0
 spring:
   main:
     allow-circular-references: true

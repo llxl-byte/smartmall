@@ -1,16 +1,16 @@
 // 位置：com.example.smart_mall_li_cr_springboot2.common包下
 package com.example.smart_mall_li_cr_springboot2.common;
 
-public class Result {
+public class Result<T> {
     private boolean success;   // 操作是否成功
     private String message;    // 提示信息
-    private Object data;       // 数据（可存放用户对象等）
+    private T data;       // 数据（可存放用户对象等）
 
     // 无参构造器（可选）
     public Result() {}
 
     // 成功时的构造器
-    public Result(boolean success, String message, Object data) {
+    public Result(boolean success, String message, T data) {
         this.success = success;
         this.message = message;
         this.data = data;
@@ -26,6 +26,16 @@ public class Result {
     public void setSuccess(boolean success) { this.success = success; }
     public String getMessage() { return message; }
     public void setMessage(String message) { this.message = message; }
-    public Object getData() { return data; }
-    public void setData(Object data) { this.data = data; }
+    public T getData() { return data; }
+    public void setData(T data) { this.data = data; }
+
+    // 静态成功方法
+    public static <T> Result<T> success(T data) {
+        return new Result<>(true, "操作成功", data);
+    }
+
+    // 静态失败方法
+    public static <T> Result<T> error(String message) {
+        return new Result<>(false, message);
+    }
 }

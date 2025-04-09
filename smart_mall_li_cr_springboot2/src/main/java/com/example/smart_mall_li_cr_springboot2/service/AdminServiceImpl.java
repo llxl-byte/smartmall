@@ -22,25 +22,38 @@ public class AdminServiceImpl extends ServiceImpl<AdminMapper, Admin> implements
      */
     @Override
     public Admin login(String username, String password) {
-        // 1. 根据用户名查询管理员
+        System.out.println("Attempting login for username: " + username);
+
+        // 1. 根据用户名查询管理员 (不区分大小写)
         QueryWrapper<Admin> queryWrapper = new QueryWrapper<>();
-        queryWrapper.eq("username", username); // 构建查询条件：username = ?
-        Admin admin = this.baseMapper.selectOne(queryWrapper); // 使用 baseMapper 执行查询
+        // 使用数据库的 LOWER 函数进行不区分大小写的比较
+        queryWrapper.apply("LOWER(username) = LOWER({0})", username);
+        Admin admin = this.baseMapper.selectOne(queryWrapper);
 
         // 2. 判断管理员是否存在
         if (admin == null) {
-            // 用户名不存在
+            System.out.println("Login failed: User '" + username + "' not found.");
             return null;
         }
+        System.out.println("User found: " + admin.getUsername()); // 打印从数据库查到的实际用户名
 
-        // 3. 比较密码 (注意：这里是明文比较，非常不安全，仅作演示)
-        // 实际应用中应比较加密后的密码
-        if (!password.equals(admin.getPassword())) {
-            // 密码错误
+        // 3. 比较密码 (去除前后空格)
+        String storedPassword = admin.getPassword();
+        System.out.println("Stored password: '" + storedPassword + "'"); // 打印数据库密码
+        System.out.println("Provided password: '" + password + "'"); // 打印传入密码
+
+        if (password == null || storedPassword == null) {
+             System.out.println("Login failed: Provided or stored password is null.");
+             return null;
+        }
+
+        if (!password.trim().equals(storedPassword.trim())) {
+            System.out.println("Login failed: Password mismatch for user '" + username + "'.");
             return null;
         }
 
         // 4. 登录成功
+        System.out.println("Login successful for user: " + username);
         return admin;
     }
 

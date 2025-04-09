@@ -6,12 +6,14 @@ import com.example.smart_mall_li_cr_springboot2.pojo.AdminLoginParam; // 引入�
 import com.example.smart_mall_li_cr_springboot2.service.AdminService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.CrossOrigin; // 需要导入这个注解
 
 /**
  * 管理员控制器
  */
 @RestController // 标记为 RESTful 控制器
 @RequestMapping("/admin") // 基础请求路径
+@CrossOrigin(origins = "https://animated-space-cod-r4ppq64r6r6jfx6vq-5173.app.github.dev", allowCredentials = "true") // 添加 CrossOrigin 注解
 public class AdminController {
 
     @Autowired // 自动注入 AdminService 实例

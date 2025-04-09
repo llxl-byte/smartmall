@@ -72,4 +72,11 @@ public class MallOrderServiceImpl implements MallOrderService {
         }
         return false;
     }
+
+
+    @Override
+    public List<MallOrder> getOrdersByUserId(Integer userId) {
+        // 直接调用 Mapper 层的方法查询订单列表
+        return mallOrderMapper.selectByUserId(userId);
+    }
 }

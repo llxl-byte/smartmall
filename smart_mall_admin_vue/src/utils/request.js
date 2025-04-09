@@ -3,7 +3,7 @@ import { ElMessage } from 'element-plus' // 引入 Element Plus 消息提示
 
 // 创建 Axios 实例
 const service = axios.create({
-  baseURL: 'http://localhost:8083', // API 的基础 URL (根据你的后端服务地址修改)
+  baseURL: 'https://animated-space-cod-r4ppq64r6r6jfx6vq-8083.app.github.dev/', // 更新为 Codespace 转发的后端地址
   timeout: 10000, // 请求超时时间 (毫秒)
   headers: {'Content-Type': 'application/json;charset=utf-8'} // 设置默认请求头
 })

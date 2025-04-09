@@ -25,8 +25,8 @@
 			<text class="link" @click="goToRegister">去注册</text>
 		</view>
 	</view>
-	
-	
+
+
 
 </template>
 
@@ -37,84 +37,92 @@
 				username: '',
 				password: '',
 				errorMessage: '',
-				rememberPassword: false
-				
+				rememberPassword: false,
+				baseUrl: ''
 			}
 		},
-		onLoad() {
-			// 页面加载时，尝试从本地存储获取用户名和密码
-			try {
-				const savedUsername = uni.getStorageSync('savedUsername');
-				const savedPassword = uni.getStorageSync('savedPassword');
-				if (savedUsername && savedPassword) {
-					this.username = savedUsername;
-					this.password = savedPassword;
-					this.rememberPassword = true;
-				}
-			} catch (e) {
-				console.log(e);
+		created() {
+			// 获取当前域名并设置baseUrl
+			const currentUrl = window.location.href;
+			if (currentUrl.includes('.app.github.dev')) {
+				// Codespace环境 - 使用完整的后端 URL
+				// 将前端端口号替换为后端端口号 8083
+				const domain = window.location.hostname;
+				this.baseUrl = `https://${domain.replace('-8080', '-8083')}`;
+			} else {
+				// 本地开发环境
+				this.baseUrl = 'http://127.0.0.1:8083';
 			}
+			console.log('Using API Base URL:', this.baseUrl); // 添加日志便于调试
 		},
 		methods: {
 			login() {
 				// 重置错误信息
 				this.errorMessage = "";
 
-				// 用户名和密码不能为空
+				// 验证输入
 				if (!this.username || !this.password) {
 					this.errorMessage = "用户名和密码不能为空";
 					return;
 				}
-				// 构建请求URL
-				let serverUrl = "http://127.0.0.1:8083/mallUserLogin?password=" + encodeURIComponent(this.password) + "&username=" + encodeURIComponent(this.username);
-				// 发送登录请求
+
+				// 构建完整的URL
+				const serverUrl = `${this.baseUrl}/mallUserLogin`;
+
+				// 发送请求
 				uni.request({
 					url: serverUrl,
 					method: 'GET',
+					data: {
+						username: this.username,
+						password: this.password
+					},
+					header: {
+						'Accept': 'application/json',
+						'Content-Type': 'application/x-www-form-urlencoded'
+					},
 					success: (res) => {
-						console.log(res);
-						//根据服务器返回的数据判断登录是否成功
-						if(res.data && res.data.success){
-							//登录成功
+						console.log('Request URL:', serverUrl); // 打印请求URL
+						console.log('Response:', res); // 打印完整响应
+
+						if (typeof res.data === 'string' && res.data.includes('<!DOCTYPE html>')) {
+							console.error('Received HTML instead of JSON');
+							this.errorMessage = '服务器配置错误，请联系管理员';
+							return;
+						}
+
+						if (res.data && res.data.success) {
 							uni.showToast({
 								title: '登录成功',
 								icon: 'success',
 								duration: 2000
 							});
-							//保存用户信息到本地
-							uni.setStorageSync('userInfo', res.data.data);
-							// 如果选择了记住密码，保存用户名和密码到本地存储
+
 							if (this.rememberPassword) {
 								uni.setStorageSync('savedUsername', this.username);
 								uni.setStorageSync('savedPassword', this.password);
 							} else {
-								// 如果取消了记住密码，清除本地存储中的用户名和密码
 								uni.removeStorageSync('savedUsername');
 								uni.removeStorageSync('savedPassword');
 							}
-							//跳转到首页
+
+							uni.setStorageSync('userInfo', res.data.data);
+
 							setTimeout(() => {
 								uni.switchTab({
 									url: '/pages/index/index'
-								})
-							}, 1500)
-						}else{
-							//登录失败
-							this.errorMessage = res.data.message || '登录失败，请稍后再试';
+								});
+							}, 1500);
+						} else {
+							this.errorMessage = res.data?.message || '登录失败，请稍后再试';
 						}
 					},
 					fail: (err) => {
-						console.error(err);
-						this.errorMessage = '网络登录请求失败，请稍后再试';
+						console.error('Request failed:', err);
+						this.errorMessage = '网络请求失败，请检查网络连接';
 					}
-				})
-			},
-			goToRegister(){
-				uni.navigateTo({
-					url: '/pages/register/register'
-				})
+				});
 			}
-			
 		}
 	}
 </script>

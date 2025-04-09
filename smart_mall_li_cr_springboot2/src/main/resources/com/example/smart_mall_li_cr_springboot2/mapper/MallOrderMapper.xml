@@ -131,4 +131,14 @@
             update_time =  #{updateTime}
         where   id = #{id} 
     </update>
+
+    <!-- 根据用户ID查询订单列表 -->
+    <select id="selectByUserId" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List" />
+        from mall_order
+        where user_id = #{userId}
+        order by create_time DESC
+    </select>
+
 </mapper>

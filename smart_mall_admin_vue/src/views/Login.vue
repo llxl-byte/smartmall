@@ -69,7 +69,8 @@ const handleLogin = async () => {
 
         // 检查后端返回的数据结构 (假设后端返回 { code: '200', msg: '...', data: ... })
         // 请根据你后端 Result 类的实际情况调整判断条件
-        if (response.data && response.data.code === '200') {
+        // 判断后端返回的 success 字段是否为 true
+        if (response.data && response.data.success) {
           ElMessage.success('登录成功')
           // --- 可选：存储 token 或用户信息 ---
           // 例如，如果后端在 data 中返回了 token:
@@ -80,7 +81,8 @@ const handleLogin = async () => {
           router.push('/') // 跳转到仪表盘页面
         } else {
           // 如果 code 不是 '200' 或数据结构不符合预期，显示后端返回的错误消息
-          ElMessage.error(response.data.msg || '用户名或密码错误')
+          // 读取后端的 message 字段作为错误提示
+          ElMessage.error(response.data.message || '登录失败，未知错误')
         }
       } catch (error) {
         // 处理请求本身发生的错误 (例如网络问题、后端服务未启动等)
