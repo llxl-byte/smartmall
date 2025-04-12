@@ -1,183 +1,59 @@
 package com.example.smart_mall_li_cr_springboot2.pojo;
 
+import lombok.Data;
 import java.math.BigDecimal;
 import java.util.Date;
 
 /**
- * 
- * @TableName order_detail
+ * 订单详情实体类
  */
+@Data
 public class OrderDetail {
-    /**
-     * 
-     */
-    private Integer id;
 
     /**
-     * 
+     * 主键ID
      */
-    private Integer orderId;
+    private Long id;
 
     /**
-     * 
+     * 订单ID
      */
-    private Integer itemId;
+    private Long orderId;
 
     /**
-     * 
+     * 商品ID
+     */
+    private Long itemId;
+
+    /**
+     * 商品数量
      */
     private Integer quantity;
 
     /**
-     * 
+     * 商品单价
      */
     private BigDecimal price;
 
     /**
-     * 
+     * 总价(单价*数量)
      */
     private BigDecimal totalPrice;
 
     /**
-     * 
+     * 商品名称
      */
     private String itemName;
 
     /**
-     * 
+     * 商品图片
      */
     private String itemImage;
 
     /**
-     * 
+     * 创建时间
      */
     private Date createTime;
-
-    /**
-     * 
-     */
-    public Integer getId() {
-        return id;
-    }
-
-    /**
-     * 
-     */
-    public void setId(Integer id) {
-        this.id = id;
-    }
-
-    /**
-     * 
-     */
-    public Integer getOrderId() {
-        return orderId;
-    }
-
-    /**
-     * 
-     */
-    public void setOrderId(Integer orderId) {
-        this.orderId = orderId;
-    }
-
-    /**
-     * 
-     */
-    public Integer getItemId() {
-        return itemId;
-    }
-
-    /**
-     * 
-     */
-    public void setItemId(Integer itemId) {
-        this.itemId = itemId;
-    }
-
-    /**
-     * 
-     */
-    public Integer getQuantity() {
-        return quantity;
-    }
-
-    /**
-     * 
-     */
-    public void setQuantity(Integer quantity) {
-        this.quantity = quantity;
-    }
-
-    /**
-     * 
-     */
-    public BigDecimal getPrice() {
-        return price;
-    }
-
-    /**
-     * 
-     */
-    public void setPrice(BigDecimal price) {
-        this.price = price;
-    }
-
-    /**
-     * 
-     */
-    public BigDecimal getTotalPrice() {
-        return totalPrice;
-    }
-
-    /**
-     * 
-     */
-    public void setTotalPrice(BigDecimal totalPrice) {
-        this.totalPrice = totalPrice;
-    }
-
-    /**
-     * 
-     */
-    public String getItemName() {
-        return itemName;
-    }
-
-    /**
-     * 
-     */
-    public void setItemName(String itemName) {
-        this.itemName = itemName;
-    }
-
-    /**
-     * 
-     */
-    public String getItemImage() {
-        return itemImage;
-    }
-
-    /**
-     * 
-     */
-    public void setItemImage(String itemImage) {
-        this.itemImage = itemImage;
-    }
-
-    /**
-     * 
-     */
-    public Date getCreateTime() {
-        return createTime;
-    }
-
-    /**
-     * 
-     */
-    public void setCreateTime(Date createTime) {
-        this.createTime = createTime;
-    }
 
     @Override
     public boolean equals(Object that) {

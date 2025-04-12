@@ -33,9 +33,19 @@ public class Result<T> {
     public static <T> Result<T> success(T data) {
         return new Result<>(true, "操作成功", data);
     }
+    
+    // 带自定义消息的静态成功方法
+    public static <T> Result<T> success(T data, String message) {
+        return new Result<>(true, message, data);
+    }
 
     // 静态失败方法
     public static <T> Result<T> error(String message) {
         return new Result<>(false, message);
+    }
+    
+    // 带数据的静态失败方法
+    public static <T> Result<T> error(String message, T data) {
+        return new Result<>(false, message, data);
     }
 }

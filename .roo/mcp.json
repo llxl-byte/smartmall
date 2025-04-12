@@ -1,3 +1,65 @@
 {
-  "mcpServers": {}
+  "mcpServers": {
+    "filesystem": {
+      "command": "cmd",
+      "args": [
+        "/c",
+        "npx",
+        "-y",
+        "@modelcontextprotocol/server-filesystem",
+        "C:\\Users\\ll.xl\\Documents\\WPSDrive\\324372117\\WPS云盘\\知识库",
+        "D:\\GraduationProject\\test\\smartmall"
+      ]
+    },
+    "git": {
+      "command": "uvx",
+      "args": [
+        "mcp-server-git",
+        "--repository",
+        "path/to/git/repo"
+      ]
+    },
+    "github": {
+      "command": "cmd",
+      "args": [
+        "/c",
+        "npx",
+        "-y",
+        "@modelcontextprotocol/server-github"
+      ],
+      "env": {
+        "GITHUB_PERSONAL_ACCESS_TOKEN": "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"
+      }
+    },
+    "Browser-Tools-mcp": {
+      "command": "cmd",
+      "args": [
+        "/c",
+        "npx",
+        "-y",
+        "@agentdeskai/browser-tools-mcp@1.2.0"
+      ],
+      "autoApprove": [],
+      "disabled": false,
+      "alwaysAllow": [
+        "getConsoleErrors",
+        "getNetworkLogs"
+      ]
+    },
+    "mariadb": {
+      "command": "node",
+      "args": [
+        "C:\\Users\\ll.xl\\AppData\\Roaming\\Roo-Code\\MCP\\mariadb-mcp-server\\build\\index.js"
+      ],
+      "env": {
+        "MARIADB_HOST": "127.0.0.1",
+        "MARIADB_PORT": "13306",
+        "MARIADB_USER": "root",
+        "MARIADB_PASSWORD": "1234",
+        "MARIADB_DATABASE": "smart_mall_li_cr_springboot2"
+      },
+      "disabled": false,
+      "alwaysAllow": []
+    }
+  }
 }

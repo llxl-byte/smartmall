@@ -181,6 +181,8 @@ export default {
 			this.itemId = options.id;
 			// 加载商品详情
 			this.loadItemDetail();
+			// 记录浏览行为
+			this.recordViewBehavior();
 		},
 		methods: {
 			// 加载商品详情
@@ -218,11 +220,12 @@ export default {
 							if (this.itemImages.length === 0) {
 								this.itemImages = ['/static/default-avatar.png']; // 使用存在的默认头像作为占位图
 							}
-							// TODO: 从后端获取商品规格、评价、收藏状态等信息并赋值
-							// this.colors = res.data.colors || [];
-							// this.sizes = res.data.sizes || [];
-							// this.reviews = res.data.reviews || [];
-							// this.isCollected = res.data.isCollected || false;
+
+							// 加载商品评价
+							this.loadReviews();
+
+							// 加载购物车数量
+							this.loadCartCount();
 
 						} else {
 							uni.showToast({
@@ -240,6 +243,36 @@ export default {
 					},
 					complete: () => {
 						this.isLoading = false;
+					}
+				});
+			},
+
+			// 加载商品评价
+			loadReviews() {
+				if (!this.itemId) return;
+
+				uni.request({
+					url: `${API_BASE_URL}/comment/list`,
+					method: 'GET',
+					data: {
+						itemId: this.itemId,
+						page: 1,
+						size: 2 // 只显示2条评价
+					},
+					success: (res) => {
+						if (res.statusCode === 200 && res.data && res.data.success) {
+							this.reviews = res.data.data || [];
+
+							// 处理评价图片
+							this.reviews.forEach(review => {
+								if (review.images && typeof review.images === 'string') {
+									review.images = review.images.split(',');
+								}
+							});
+						}
+					},
+					fail: (err) => {
+						console.error('获取评价列表失败', err);
 					}
 				});
 			},
@@ -276,28 +309,50 @@ export default {
 				// TODO: 添加规格选择校验
 				// if (this.colors.length > 0 && !this.selectedColor) { ... }
 
+				// 显示加载提示
+				uni.showLoading({
+					title: '正在添加...'
+				});
+
+				// 确保数据类型正确
+				const userId = parseInt(userInfo.id);
+				const itemId = parseInt(this.itemId);
+				const quantity = parseInt(this.quantity);
+
 				uni.request({
 					url: `${API_BASE_URL}/addCart`,
 					method: 'POST',
+					header: {
+						'content-type': 'application/x-www-form-urlencoded' // 使用表单格式
+					},
 					data: {
-						userId: userInfo.id,
-						itemId: this.itemId,
-						quantity: this.quantity,
-						// TODO: 添加已选规格信息
-						// color: this.selectedColor,
-						// size: this.selectedSize
+						userId: userId,
+						itemId: itemId,
+						quantity: quantity
 					},
 					success: (res) => {
-						if (res.data && res.data.success) { // 假设后端返回 { success: true/false }
-							uni.showToast({
-								title: '添加成功',
-								icon: 'success'
-							});
-							// TODO: 更新购物车角标数量
-							// this.cartCount++;
+						console.log('添加购物车响应:', res);
+						// 检查HTTP状态码
+						if (res.statusCode === 200) {
+							if (res.data === true) { // 假设后端返回true表示成功
+								// 记录加入购物车行为
+								this.recordBehavior(2); // 2-加入购物车
+
+								uni.showToast({
+									title: '添加成功',
+									icon: 'success'
+								});
+								// 更新购物车角标数量
+								this.loadCartCount();
+							} else {
+								uni.showToast({
+									title: '添加失败，请重试',
+									icon: 'none'
+								});
+							}
 						} else {
 							uni.showToast({
-								title: res.data.message || '添加失败',
+								title: `服务器错误: ${res.statusCode}`,
 								icon: 'none'
 							});
 						}
@@ -308,6 +363,24 @@ export default {
 							title: '添加购物车失败',
 							icon: 'none'
 						});
+					},
+					complete: () => {
+						uni.hideLoading();
+					}
+				});
+			},
+
+			// 加载购物车数量
+			loadCartCount() {
+				const userInfo = uni.getStorageSync('userInfo');
+				if (!userInfo) return;
+
+				uni.request({
+					url: `${API_BASE_URL}/selectByUserId?userId=${userInfo.id}`,
+					success: (res) => {
+						if (res.data && Array.isArray(res.data)) {
+							this.cartCount = res.data.length;
+						}
 					}
 				});
 			},
@@ -321,6 +394,9 @@ export default {
 					return;
 				}
 				// TODO: 添加规格选择校验
+
+				// 记录购买行为
+				this.recordBehavior(3); // 3-购买
 
 				// 创建临时订单并跳转到订单确认页
 				// 注意：需要将已选规格等信息传递给确认页
@@ -340,8 +416,21 @@ export default {
 			},
 			toggleCollect() {
 				console.log('切换收藏状态');
-				// 这里需要调用后端接口更新收藏状态
-				this.isCollected = !this.isCollected; // 临时切换状态，需要后端配合
+				// 检查是否登录
+				const userInfo = uni.getStorageSync('userInfo');
+				if (!userInfo) {
+					uni.navigateTo({ url: '/pages/login/login' });
+					return;
+				}
+
+				// 切换收藏状态
+				this.isCollected = !this.isCollected;
+
+				// 记录收藏行为
+				if (this.isCollected) {
+					this.recordBehavior(4); // 4-收藏
+				}
+
 				uni.showToast({
 					title: this.isCollected ? '收藏成功' : '取消收藏',
 					icon: 'none'
@@ -350,8 +439,7 @@ export default {
 			viewAllReviews() {
 				console.log('查看全部评价');
 				// 跳转到评价列表页面
-				// uni.navigateTo({ url: `/pages/reviews/reviews?itemId=${this.itemId}` });
-				uni.showToast({ title: '功能开发中', icon: 'none' });
+				uni.navigateTo({ url: `/pages/reviews/reviews?itemId=${this.itemId}` });
 			},
 			previewReviewImage(images, index) {
 				console.log('预览评价图片:', index);
@@ -364,10 +452,63 @@ export default {
 				console.log('返回首页');
 				uni.switchTab({ url: '/pages/index/index' });
 			},
+
+			// 记录浏览行为
+			recordViewBehavior() {
+				// 检查是否登录
+				const userInfo = uni.getStorageSync('userInfo');
+				if (!userInfo || !this.itemId) {
+					return;
+				}
+
+				// 记录浏览行为
+				this.recordBehavior(1); // 1-浏览
+			},
+
+			// 记录用户行为
+			recordBehavior(behaviorType) {
+				// 检查是否登录
+				const userInfo = uni.getStorageSync('userInfo');
+				if (!userInfo || !this.itemId) {
+					return;
+				}
+
+				// 确保数据类型正确
+				const userId = parseInt(userInfo.id);
+				const itemId = parseInt(this.itemId);
+
+				// 调用后端接口记录行为
+				uni.request({
+					url: `${API_BASE_URL}/behavior/record`,
+					method: 'POST',
+					header: {
+						'content-type': 'application/x-www-form-urlencoded'
+					},
+					data: {
+						userId: userId,
+						itemId: itemId,
+						behaviorType: behaviorType
+					},
+					success: (res) => {
+						console.log('记录行为成功:', behaviorType);
+					},
+					fail: (err) => {
+						console.error('记录行为失败:', err);
+					}
+				});
+			},
 			contactService() {
 				console.log('联系客服');
-				// uni.makePhoneCall({ phoneNumber: '客服电话' }); // 拨打电话
-				uni.showToast({ title: '功能开发中', icon: 'none' });
+				// 检查是否登录
+				const userInfo = uni.getStorageSync('userInfo');
+				if (!userInfo) {
+					uni.navigateTo({ url: '/pages/login/login' });
+					return;
+				}
+				// 跳转到智能客服页面
+				uni.navigateTo({
+					url: '/pages/chat/chat'
+				});
 			}
 			// === 新增方法占位符结束 ===
 		}
@@ -655,6 +796,17 @@ export default {
 		display: flex;
 		align-items: center;
 		border-top: 1rpx solid #eee;
+		z-index: 99; /* 确保显示在最上层 */
+	}
+
+	.action-left {
+		display: flex;
+		width: 40%; /* 左侧占40% */
+	}
+
+	.action-right {
+		display: flex;
+		width: 60%; /* 右侧占60% */
 	}
 
 	.action-item {
@@ -664,6 +816,7 @@ export default {
 		align-items: center;
 		justify-content: center;
 		font-size: 24rpx;
+		position: relative; /* 为了定位角标 */
 	}
 
 	.action-icon {
@@ -672,8 +825,24 @@ export default {
 		margin-bottom: 5rpx;
 	}
 
+	.cart-badge {
+		position: absolute;
+		top: 0;
+		right: 50%; /* 定位到图标右上方 */
+		transform: translateX(10rpx);
+		background-color: #ff6700;
+		color: #fff;
+		font-size: 20rpx;
+		min-width: 32rpx;
+		height: 32rpx;
+		line-height: 32rpx;
+		text-align: center;
+		border-radius: 16rpx;
+		padding: 0 6rpx;
+	}
+
 	.action-btn {
-		flex: 2;
+		flex: 1;
 		height: 80rpx;
 		line-height: 80rpx;
 		text-align: center;
@@ -683,6 +852,7 @@ export default {
 
 	.add-cart {
 		background-color: #ff9500;
+		margin-right: 2rpx; /* 两个按钮之间的间隙 */
 	}
 
 	.buy-now {

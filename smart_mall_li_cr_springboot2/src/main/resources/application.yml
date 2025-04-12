@@ -13,7 +13,7 @@ spring:
     #      有的mysql如5.0 下面必须改成com.mysql.jdbc.Driver
     driver-class-name: com.mysql.cj.jdbc.Driver
     #改为3306端口
-    url: jdbc:mysql://127.0.0.1:3306/smart_mall_li_cr_springboot2?useUnicode=true&characterEncoding=UTF-8&serverTimezone=GMT%2b8
+    url: jdbc:mysql://127.0.0.1:13306/smart_mall_li_cr_springboot2?useUnicode=true&characterEncoding=UTF-8&serverTimezone=GMT%2b8
     username: root
     #密码放在''中，不加‘’也可以
     password: '1234'

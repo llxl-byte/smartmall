@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.smart_mall_li_cr_springboot2.mapper.CouponMapper">
+
+    <!--
+        id: 必须与 Mapper 接口中的方法名一致
+        resultType: 返回结果的类型，需要写类的全限定名
+        parameterType: (可选) 参数类型
+    -->
+    <select id="findUserValidCoupons"
+            resultType="com.example.smart_mall_li_cr_springboot2.pojo.Coupon">
+        SELECT
+            id, user_id, name, description, type, threshold, discount_amount,
+            status, create_time, expiry_date, use_time, order_id
+        FROM
+            coupon
+        WHERE
+            user_id = #{userId}
+          AND status = 0                   -- 状态为未使用 (0)
+          AND expiry_date >= #{currentDate} -- 未过期 (包含当天)
+        ORDER BY
+            discount_amount DESC,          -- 优先显示抵扣金额大的
+            threshold ASC                  -- 金额相同，门槛低的优先
+    </select>
+
+    <select id="findByIdAndUserIdForUpdate" resultType="com.example.smart_mall_li_cr_springboot2.pojo.Coupon">
+        SELECT
+             id, user_id, name, description, type, threshold, discount_amount,
+             status, create_time, expiry_date, use_time, order_id
+        FROM
+            coupon
+        WHERE
+            id = #{id}
+          AND user_id = #{userId}
+        FOR UPDATE -- 添加行级锁
+    </select>
+
+    <update id="updateStatus">
+        UPDATE coupon
+        SET
+            status = #{status},
+            use_time = #{useTime},
+            order_id = #{orderId}
+        WHERE
+            id = #{id}
+          AND status = 0 -- 乐观锁：确保优惠券是未使用状态才更新
+    </update>
+
+    <!-- 未来可以添加其他 SQL 语句，如插入、更新等 -->
+
+</mapper> 

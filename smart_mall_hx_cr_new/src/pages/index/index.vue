@@ -11,10 +11,10 @@
 		<!-- 轮播图 -->
 		<swiper class="banner" indicator-dots autoplay circular>
 			<swiper-item>
-				<image src="/static/banner1.jpg" mode="aspectFill"></image>
+				<image src="../../static/landscape.jpg" mode="aspectFill"></image>
 			</swiper-item>
 			<swiper-item>
-				<image src="/static/banner2.jpg" mode="aspectFill"></image>
+				<image src="../../static/scenery.jpg" mode="aspectFill"></image>
 			</swiper-item>
 		</swiper>
 
@@ -33,8 +33,50 @@
 			</scroll-view>
 		</view>
 
-		<!-- 商品列表 -->
+		<!-- 推荐商品 -->
+		<view class="recommend-section" v-if="recommendItems.length > 0">
+			<view class="section-header">
+				<text class="section-title">为您推荐</text>
+			</view>
+			<scroll-view scroll-x class="recommend-scroll">
+				<view
+					class="recommend-item"
+					v-for="(item, index) in recommendItems"
+					:key="'rec-'+index"
+					@click="goToDetail(item.id)"
+				>
+					<image class="recommend-image" :src="item.mainImage || '/static/default_item.png'"></image>
+					<view class="recommend-name">{{item.name}}</view>
+					<view class="recommend-price">¥{{item.price}}</view>
+				</view>
+			</scroll-view>
+		</view>
+
+		<!-- 热销商品 -->
+		<view class="hot-section" v-if="hotItems.length > 0">
+			<view class="section-header">
+				<text class="section-title">热销商品</text>
+			</view>
+			<scroll-view scroll-x class="hot-scroll">
+				<view
+					class="hot-item"
+					v-for="(item, index) in hotItems"
+					:key="'hot-'+index"
+					@click="goToDetail(item.id)"
+				>
+					<image class="hot-image" :src="item.mainImage || '/static/default_item.png'"></image>
+					<view class="hot-name">{{item.name}}</view>
+					<view class="hot-price">¥{{item.price}}</view>
+					<view class="hot-sales">销量: {{item.sales || 0}}</view>
+				</view>
+			</scroll-view>
+		</view>
+
+		<!-- 分类商品列表 -->
 		<view class="item-list">
+			<view class="section-header">
+				<text class="section-title">分类商品</text>
+			</view>
 			<view
 				class="item-card"
 				v-for="(item, index) in itemList"
@@ -65,18 +107,28 @@ export default {
 			return {
 				categoryList: [],
 				itemList: [],
+				recommendItems: [], // 推荐商品
+				hotItems: [], // 热销商品
 				currentCategory: 0, // 当前选中的分类
 				loadingMore: false, // 是否正在加载更多
 				page: 1, // 当前页码
 				pageSize: 10, // 每页数量
-				hasMore: true // 是否还有更多数据
+				hasMore: true, // 是否还有更多数据
+				userInfo: null // 用户信息
 			}
 		},
 		onLoad() {
+			// 获取用户信息
+			this.userInfo = uni.getStorageSync('userInfo');
+
 			// 加载分类列表
 			this.loadCategories();
 			// 加载商品列表
 			this.loadItems();
+			// 加载热销商品
+			this.loadHotItems();
+			// 加载推荐商品
+			this.loadRecommendItems();
 		},
 		onPullDownRefresh() {
 			// 下拉刷新
@@ -184,6 +236,62 @@ export default {
 					title: '搜索功能待开发',
 					icon: 'none'
 				});
+			},
+
+			// 加载热销商品
+			loadHotItems() {
+				uni.request({
+					url: `${API_BASE_URL}/recommend/hot?limit=10`,
+					success: (res) => {
+						if (res.data && res.data.data) {
+							this.hotItems = res.data.data;
+						}
+					},
+					fail: (err) => {
+						console.error('获取热销商品失败', err);
+					}
+				});
+			},
+
+			// 加载推荐商品
+			loadRecommendItems() {
+				// 如果用户未登录，直接加载热销商品
+				if (!this.userInfo) {
+					uni.request({
+						url: `${API_BASE_URL}/recommend/hot?limit=10`,
+						success: (res) => {
+							if (res.data && res.data.data) {
+								this.recommendItems = res.data.data;
+							}
+						},
+						fail: (err) => {
+							console.error('获取推荐商品失败', err);
+						}
+					});
+					return;
+				}
+
+				// 如果用户已登录，加载个性化推荐
+				uni.request({
+					url: `${API_BASE_URL}/recommend/user/${this.userInfo.id}?limit=10`,
+					success: (res) => {
+						if (res.data && res.data.data) {
+							this.recommendItems = res.data.data;
+						}
+					},
+					fail: (err) => {
+						console.error('获取个性化推荐失败', err);
+						// 如果个性化推荐失败，回退到热销推荐
+						uni.request({
+							url: `${API_BASE_URL}/recommend/hot?limit=10`,
+							success: (res) => {
+								if (res.data && res.data.data) {
+									this.recommendItems = res.data.data;
+								}
+							}
+						});
+					}
+				});
 			}
 		}
 	}
@@ -275,6 +383,67 @@ export default {
 		display: flex;
 		flex-wrap: wrap;
 		padding: 0 10rpx;
+		margin-top: 20rpx;
+	}
+
+	/* 推荐商品样式 */
+	.recommend-section, .hot-section {
+		background-color: #fff;
+		margin: 20rpx 0;
+		padding: 20rpx 0;
+		border-radius: 10rpx;
+	}
+
+	.section-header {
+		padding: 0 20rpx 20rpx;
+		display: flex;
+		justify-content: space-between;
+		align-items: center;
+	}
+
+	.section-title {
+		font-size: 32rpx;
+		font-weight: bold;
+		color: #333;
+	}
+
+	.recommend-scroll, .hot-scroll {
+		white-space: nowrap;
+		padding: 0 10rpx;
+	}
+
+	.recommend-item, .hot-item {
+		display: inline-block;
+		width: 220rpx;
+		margin: 0 10rpx;
+		vertical-align: top;
+	}
+
+	.recommend-image, .hot-image {
+		width: 220rpx;
+		height: 220rpx;
+		border-radius: 10rpx;
+	}
+
+	.recommend-name, .hot-name {
+		font-size: 26rpx;
+		color: #333;
+		margin: 10rpx 0;
+		overflow: hidden;
+		text-overflow: ellipsis;
+		white-space: nowrap;
+	}
+
+	.recommend-price, .hot-price {
+		font-size: 30rpx;
+		color: #ff6700;
+		font-weight: bold;
+	}
+
+	.hot-sales {
+		font-size: 22rpx;
+		color: #999;
+		margin-top: 5rpx;
 	}
 
 	.item-card {

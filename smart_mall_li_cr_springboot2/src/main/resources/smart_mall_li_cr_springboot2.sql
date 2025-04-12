@@ -1,5 +1,5 @@
 /*
-SQLyog 企业版 - MySQL GUI v8.14 
+SQLyog 企业版 - MySQL GUI v8.14
 MySQL - 5.5.5-10.5.23-MariaDB : Database - smart_mall_li_cr_springboot2
 *********************************************************************
 */
@@ -307,4 +307,27 @@ CREATE TABLE `backend_admin` (
 /*Data for the table `backend_admin` */
 -- 可以在这里插入初始管理员数据，例如：
 -- INSERT INTO `backend_admin` (`username`, `password`, `role`) VALUES ('admin', '加密后的密码', 'superadmin');
+
+/*Table structure for table `user_address` */
+
+DROP TABLE IF EXISTS `user_address`;
+
+CREATE TABLE `user_address` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `user_id` int(11) NOT NULL COMMENT '用户ID',
+  `name` varchar(50) NOT NULL COMMENT '收货人姓名',
+  `phone` varchar(20) NOT NULL COMMENT '收货人手机号',
+  `province` varchar(50) NOT NULL COMMENT '省份',
+  `city` varchar(50) NOT NULL COMMENT '城市',
+  `district` varchar(50) NOT NULL COMMENT '区/县',
+  `address` varchar(255) NOT NULL COMMENT '详细地址',
+  `is_default` tinyint(1) DEFAULT 0 COMMENT '是否默认地址：0-否，1-是',
+  `create_time` datetime DEFAULT current_timestamp() COMMENT '创建时间',
+  `update_time` datetime DEFAULT current_timestamp() ON UPDATE current_timestamp() COMMENT '更新时间',
+  PRIMARY KEY (`id`),
+  KEY `idx_user_id` (`user_id`),
+  CONSTRAINT `fk_user_address_user_id` FOREIGN KEY (`user_id`) REFERENCES `mall_user` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci COMMENT='用户收货地址表';
+
+/*Data for the table `user_address` */
 

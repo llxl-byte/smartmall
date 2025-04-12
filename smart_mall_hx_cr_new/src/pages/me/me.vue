@@ -40,6 +40,11 @@
 				<text class="menu-text">设置</text>
 				<text class="menu-arrow">></text>
 			</view>
+			<view class="menu-item" @click="goToCustomerService">
+				<text class="menu-icon">💬</text>
+				<text class="menu-text">智能客服</text>
+				<text class="menu-arrow">></text>
+			</view>
 			<view v-if="isLogin" class="logout-container" @click="logout">
 
 				<text class="logout-text">退出登录</text>
@@ -135,6 +140,17 @@
 				}
 				uni.navigateTo({
 					url: '/pages/settings/settings'
+				});
+			},
+
+			// 跳转到智能客服页
+			goToCustomerService() {
+				if (!this.isLogin) {
+					this.goToLogin();
+					return;
+				}
+				uni.navigateTo({
+					url: '/pages/chat/chat'
 				});
 			},
 

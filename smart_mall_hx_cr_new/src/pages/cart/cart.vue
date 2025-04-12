@@ -228,7 +228,10 @@ export default {
             increaseQuantity(item) {
                 if (item.quantity < 99) {
                     item.quantity++;
+                    // 尝试使用替代方法
                     this.updateCartItemQuantity(item);
+                    // 如果上面方法继续失败，可以取消注释下面这一行使用替代方法
+                    // this.updateCartItemQuantityAlternative(item);
                 }
             },
 
@@ -236,7 +239,10 @@ export default {
             decreaseQuantity(item) {
                 if (item.quantity > 1) {
                     item.quantity--;
+                    // 尝试使用替代方法
                     this.updateCartItemQuantity(item);
+                    // 如果上面方法继续失败，可以取消注释下面这一行使用替代方法
+                    // this.updateCartItemQuantityAlternative(item);
                 }
             },
 
@@ -250,17 +256,58 @@ export default {
                     quantity = 99;
                 }
                 item.quantity = quantity;
+                // 尝试使用替代方法
                 this.updateCartItemQuantity(item);
+                // 如果上面方法继续失败，可以取消注释下面这一行使用替代方法
+                // this.updateCartItemQuantityAlternative(item);
             },
 
             // 更新购物车商品数量
             updateCartItemQuantity(item) {
+                console.log('更新购物车数据：', {id: item.id, quantity: item.quantity});
+                
+                uni.showLoading({
+                    title: '更新中...'
+                });
+                
+                // 确保id和quantity都是整数类型
+                const id = parseInt(item.id);
+                const quantity = parseInt(item.quantity);
+                
+                if (isNaN(id) || isNaN(quantity)) {
+                    console.error('无效的ID或数量');
+                    uni.showToast({
+                        title: '参数无效',
+                        icon: 'none'
+                    });
+                    uni.hideLoading();
+                    return;
+                }
+                
                 uni.request({
                     url: `${API_BASE_URL}/updateCart`,
                     method: 'POST',
+                    header: {
+                        'content-type': 'application/x-www-form-urlencoded' // 改用表单格式
+                    },
                     data: {
-                        id: item.id,
-                        quantity: item.quantity
+                        id: id,
+                        quantity: quantity
+                    },
+                    success: (res) => {
+                        console.log('更新购物车响应：', res);
+                        if (res.statusCode === 200 && res.data === true) {
+                            uni.showToast({
+                                title: '更新成功',
+                                icon: 'success',
+                                duration: 1500
+                            });
+                        } else {
+                            uni.showToast({
+                                title: `更新失败: ${res.statusCode}`,
+                                icon: 'none'
+                            });
+                        }
                     },
                     fail: (err) => {
                         console.error('更新购物车数量失败', err);
@@ -268,6 +315,68 @@ export default {
                             title: '更新购物车数量失败',
                             icon: 'none'
                         });
+                    },
+                    complete: () => {
+                        uni.hideLoading();
+                    }
+                });
+            },
+
+            // 更新购物车商品数量的替代方法
+            updateCartItemQuantityAlternative(item) {
+                console.log('使用替代方法更新购物车数据：', {id: item.id, quantity: item.quantity});
+                
+                uni.showLoading({
+                    title: '更新中...'
+                });
+                
+                // 尝试使用另一个可能的接口端点
+                uni.request({
+                    url: `${API_BASE_URL}/cart/update`,  // 尝试不同的API路径
+                    method: 'POST',
+                    data: {
+                        id: item.id,
+                        quantity: item.quantity
+                    },
+                    success: (res) => {
+                        console.log('更新购物车响应：', res);
+                        if (res.statusCode === 200) {
+                            uni.showToast({
+                                title: '更新成功',
+                                icon: 'success',
+                                duration: 1500
+                            });
+                        } else {
+                            uni.showToast({
+                                title: `更新失败: ${res.statusCode}`,
+                                icon: 'none'
+                            });
+                        }
+                    },
+                    fail: (err) => {
+                        console.error('更新购物车数量失败', err);
+                        uni.showToast({
+                            title: '更新购物车数量失败',
+                            icon: 'none'
+                        });
+                        
+                        // 失败时尝试直接修改本地数据，不与后端同步
+                        // 注意：这只是临时解决方案
+                        uni.showModal({
+                            title: '同步失败',
+                            content: '是否仅在本地保存更改？下次加载购物车时将重置',
+                            success: (res) => {
+                                if (res.confirm) {
+                                    uni.showToast({
+                                        title: '已在本地更新',
+                                        icon: 'none'
+                                    });
+                                }
+                            }
+                        });
+                    },
+                    complete: () => {
+                        uni.hideLoading();
                     }
                 });
             },
@@ -345,7 +454,7 @@ export default {
 .cart-container {
     min-height: 100vh;
     background-color: #f8f8f8;
-    padding-bottom: 100rpx;
+    padding-bottom: 200rpx;
 }
 
 .cart-item {
@@ -429,7 +538,7 @@ export default {
 
 .cart-footer {
     position: fixed;
-    bottom: 0;
+    bottom: 100rpx;
     left: 0;
     right: 0;
     height: 100rpx;
@@ -438,6 +547,7 @@ export default {
     align-items: center;
     padding: 0 20rpx;
     border-top: 1rpx solid #eee;
+    z-index: 99;
 }
 
 .select-all {

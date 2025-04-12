@@ -1,6 +1,7 @@
 package com.example.smart_mall_li_cr_springboot2.mapper;
 
 import com.example.smart_mall_li_cr_springboot2.pojo.Faq;
+import java.util.List;
 
 /**
 * @author ll.xl
@@ -22,4 +23,16 @@ public interface FaqMapper {
 
     int updateByPrimaryKey(Faq record);
 
+    /**
+     * 查询所有FAQ，按排序字段排序
+     * @return FAQ列表
+     */
+    List<Faq> selectAllOrderBySort();
+
+    /**
+     * 根据关键词搜索FAQ
+     * @param keyword 关键词
+     * @return 匹配的FAQ列表
+     */
+    List<Faq> searchByKeyword(String keyword);
 }

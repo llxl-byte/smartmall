@@ -25,12 +25,12 @@
         select
         <include refid="Base_Column_List" />
         from comment
-        where  id = #{id} 
+        where  id = #{id}
     </select>
 
     <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
         delete from comment
-        where  id = #{id} 
+        where  id = #{id}
     </delete>
     <insert id="insert" keyColumn="id" keyProperty="id" parameterType="com.example.smart_mall_li_cr_springboot2.pojo.Comment" useGeneratedKeys="true">
         insert into comment
@@ -92,11 +92,11 @@
                     create_time = #{createTime},
                 </if>
         </set>
-        where   id = #{id} 
+        where   id = #{id}
     </update>
     <update id="updateByPrimaryKey" parameterType="com.example.smart_mall_li_cr_springboot2.pojo.Comment">
         update comment
-        set 
+        set
             user_id =  #{userId},
             item_id =  #{itemId},
             order_id =  #{orderId},
@@ -105,6 +105,39 @@
             images =  #{images},
             is_anonymous =  #{isAnonymous},
             create_time =  #{createTime}
-        where   id = #{id} 
+        where   id = #{id}
     </update>
+
+    <!-- 根据商品ID查询评价列表 -->
+    <select id="selectByItemId" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List" />
+        from comment
+        where item_id = #{itemId}
+        order by create_time desc
+        limit #{offset}, #{limit}
+    </select>
+
+    <!-- 检查用户是否已经评价过该订单中的商品 -->
+    <select id="checkUserHasCommented" resultType="boolean">
+        select count(1) > 0
+        from comment
+        where user_id = #{userId}
+        and item_id = #{itemId}
+        and order_id = #{orderId}
+    </select>
+
+    <!-- 获取商品的评分统计信息 -->
+    <select id="getItemRatingStats" resultType="java.util.HashMap">
+        select
+            count(1) as totalCount,
+            avg(rating) as avgRating,
+            sum(case when rating = 5 then 1 else 0 end) as fiveStarCount,
+            sum(case when rating = 4 then 1 else 0 end) as fourStarCount,
+            sum(case when rating = 3 then 1 else 0 end) as threeStarCount,
+            sum(case when rating = 2 then 1 else 0 end) as twoStarCount,
+            sum(case when rating = 1 then 1 else 0 end) as oneStarCount
+        from comment
+        where item_id = #{itemId}
+    </select>
 </mapper>

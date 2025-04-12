@@ -20,12 +20,12 @@
         select
         <include refid="Base_Column_List" />
         from user_behavior
-        where  id = #{id} 
+        where  id = #{id}
     </select>
 
     <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
         delete from user_behavior
-        where  id = #{id} 
+        where  id = #{id}
     </delete>
     <insert id="insert" keyColumn="id" keyProperty="id" parameterType="com.example.smart_mall_li_cr_springboot2.pojo.UserBehavior" useGeneratedKeys="true">
         insert into user_behavior
@@ -65,15 +65,47 @@
                     create_time = #{createTime},
                 </if>
         </set>
-        where   id = #{id} 
+        where   id = #{id}
     </update>
     <update id="updateByPrimaryKey" parameterType="com.example.smart_mall_li_cr_springboot2.pojo.UserBehavior">
         update user_behavior
-        set 
+        set
             user_id =  #{userId},
             item_id =  #{itemId},
             behavior_type =  #{behaviorType},
             create_time =  #{createTime}
-        where   id = #{id} 
+        where   id = #{id}
     </update>
+
+    <!-- 根据用户ID查询行为记录 -->
+    <select id="selectByUserId" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List" />
+        from user_behavior
+        where user_id = #{userId}
+        <if test="behaviorType != null">
+            and behavior_type = #{behaviorType}
+        </if>
+        order by create_time desc
+    </select>
+
+    <!-- 根据商品ID查询行为记录 -->
+    <select id="selectByItemId" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List" />
+        from user_behavior
+        where item_id = #{itemId}
+        <if test="behaviorType != null">
+            and behavior_type = #{behaviorType}
+        </if>
+        order by create_time desc
+    </select>
+
+    <!-- 统计商品的行为次数 -->
+    <select id="countByItemIdAndType" resultType="java.lang.Integer">
+        select count(*)
+        from user_behavior
+        where item_id = #{itemId}
+        and behavior_type = #{behaviorType}
+    </select>
 </mapper>

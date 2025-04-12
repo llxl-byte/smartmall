@@ -74,9 +74,40 @@
 			}
 		},
 		{
+			"path": "pages/address/add",
+			"style": {
+				"navigationBarTitleText": "添加收货地址"
+			}
+		},
+		{
+			"path": "pages/address/edit",
+			"style": {
+				"navigationBarTitleText": "编辑收货地址"
+			}
+		},
+		{
 			"path": "pages/settings/settings",
 			"style": {
 				"navigationBarTitleText": "设置"
+			}
+		},
+		{
+			"path": "pages/chat/chat",
+			"style": {
+				"navigationBarTitleText": "智能客服"
+			}
+		},
+		{
+			"path": "pages/reviews/reviews",
+			"style": {
+				"navigationBarTitleText": "商品评价",
+				"enablePullDownRefresh": true
+			}
+		},
+		{
+			"path": "pages/reviews/submit",
+			"style": {
+				"navigationBarTitleText": "发表评价"
 			}
 		}
 	],

@@ -21,12 +21,12 @@
         select
         <include refid="Base_Column_List" />
         from faq
-        where  id = #{id} 
+        where  id = #{id}
     </select>
 
     <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
         delete from faq
-        where  id = #{id} 
+        where  id = #{id}
     </delete>
     <insert id="insert" keyColumn="id" keyProperty="id" parameterType="com.example.smart_mall_li_cr_springboot2.pojo.Faq" useGeneratedKeys="true">
         insert into faq
@@ -71,16 +71,34 @@
                     update_time = #{updateTime},
                 </if>
         </set>
-        where   id = #{id} 
+        where   id = #{id}
     </update>
     <update id="updateByPrimaryKey" parameterType="com.example.smart_mall_li_cr_springboot2.pojo.Faq">
         update faq
-        set 
+        set
             question =  #{question},
             answer =  #{answer},
             sort =  #{sort},
             create_time =  #{createTime},
             update_time =  #{updateTime}
-        where   id = #{id} 
+        where   id = #{id}
     </update>
+
+    <!-- 查询所有FAQ，按排序字段排序 -->
+    <select id="selectAllOrderBySort" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List" />
+        from faq
+        order by sort asc, id asc
+    </select>
+
+    <!-- 根据关键词搜索FAQ -->
+    <select id="searchByKeyword" parameterType="java.lang.String" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List" />
+        from faq
+        where question like CONCAT('%', #{keyword}, '%')
+        or answer like CONCAT('%', #{keyword}, '%')
+        order by sort asc, id asc
+    </select>
 </mapper>
