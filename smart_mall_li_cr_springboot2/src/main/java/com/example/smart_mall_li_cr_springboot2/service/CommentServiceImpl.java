@@ -1,4 +1,4 @@
-package com.example.smart_mall_li_cr_springboot2.service.impl;
+package com.example.smart_mall_li_cr_springboot2.service;
 
 import com.example.smart_mall_li_cr_springboot2.mapper.CommentMapper;
 import com.example.smart_mall_li_cr_springboot2.mapper.MallOrderMapper;
@@ -7,7 +7,6 @@ import com.example.smart_mall_li_cr_springboot2.mapper.OrderDetailMapper;
 import com.example.smart_mall_li_cr_springboot2.pojo.Comment;
 import com.example.smart_mall_li_cr_springboot2.pojo.MallOrder;
 import com.example.smart_mall_li_cr_springboot2.pojo.MallUser;
-import com.example.smart_mall_li_cr_springboot2.service.CommentService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -77,7 +76,7 @@ public class CommentServiceImpl implements CommentService {
             }
 
             // 获取用户信息
-            MallUser user = mallUserMapper.selectByPrimaryKey(comment.getUserId().longValue());
+            MallUser user = mallUserMapper.selectByPrimaryKey(comment.getUserId()); // 去掉 .longValue()
             if (user != null) {
                 // 如果是匿名评价，隐藏用户名
                 if (comment.getIsAnonymous() != null && comment.getIsAnonymous() == 1) {
@@ -107,7 +106,7 @@ public class CommentServiceImpl implements CommentService {
         }
 
         // 检查是否可以评价
-        if (!canComment(comment.getUserId(), comment.getItemId(), comment.getOrderId())) {
+        if (!canComment(comment.getUserId(), comment.getItemId(), comment.getOrderId().intValue())) {
             return false;
         }
 
@@ -136,7 +135,7 @@ public class CommentServiceImpl implements CommentService {
         }
 
         // 检查订单是否存在且属于该用户
-        MallOrder order = mallOrderMapper.selectByPrimaryKey(orderId);
+        MallOrder order = mallOrderMapper.selectByPrimaryKey(orderId.longValue());
         if (order == null || !order.getUserId().equals(userId)) {
             return false;
         }

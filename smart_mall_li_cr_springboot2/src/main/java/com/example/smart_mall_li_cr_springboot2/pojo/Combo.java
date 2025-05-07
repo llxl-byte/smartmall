@@ -2,14 +2,15 @@ package com.example.smart_mall_li_cr_springboot2.pojo;
 
 import java.math.BigDecimal;
 import java.util.Date;
+import java.util.List;
 
 /**
- * 
+ *
  * @TableName combo
  */
 public class Combo {
     /**
-     * 
+     *
      */
     private Integer id;
 
@@ -54,7 +55,12 @@ public class Combo {
     private Date updateTime;
 
     /**
-     * 
+     * 套餐包含的商品项列表
+     */
+    private List<com.example.smart_mall_li_cr_springboot2.pojo.ComboItem> comboItems;
+
+    /**
+     *
      */
     public Integer getId() {
         return id;
@@ -179,6 +185,22 @@ public class Combo {
         this.updateTime = updateTime;
     }
 
+    /**
+     * 获取套餐包含的商品项列表
+     * @return 商品项列表
+     */
+    public List<com.example.smart_mall_li_cr_springboot2.pojo.ComboItem> getComboItems() {
+        return comboItems;
+    }
+
+    /**
+     * 设置套餐包含的商品项列表
+     * @param comboItems 商品项列表
+     */
+    public void setComboItems(List<com.example.smart_mall_li_cr_springboot2.pojo.ComboItem> comboItems) {
+        this.comboItems = comboItems;
+    }
+
     @Override
     public boolean equals(Object that) {
         if (this == that) {
@@ -199,7 +221,8 @@ public class Combo {
             && (this.getMainImage() == null ? other.getMainImage() == null : this.getMainImage().equals(other.getMainImage()))
             && (this.getIsOnSale() == null ? other.getIsOnSale() == null : this.getIsOnSale().equals(other.getIsOnSale()))
             && (this.getCreateTime() == null ? other.getCreateTime() == null : this.getCreateTime().equals(other.getCreateTime()))
-            && (this.getUpdateTime() == null ? other.getUpdateTime() == null : this.getUpdateTime().equals(other.getUpdateTime()));
+            && (this.getUpdateTime() == null ? other.getUpdateTime() == null : this.getUpdateTime().equals(other.getUpdateTime()))
+            && (this.comboItems == null ? other.comboItems == null : this.comboItems.equals(other.comboItems));
     }
 
     @Override
@@ -215,6 +238,7 @@ public class Combo {
         result = prime * result + ((getIsOnSale() == null) ? 0 : getIsOnSale().hashCode());
         result = prime * result + ((getCreateTime() == null) ? 0 : getCreateTime().hashCode());
         result = prime * result + ((getUpdateTime() == null) ? 0 : getUpdateTime().hashCode());
+        result = prime * result + ((comboItems == null) ? 0 : comboItems.hashCode());
         return result;
     }
 
@@ -233,6 +257,7 @@ public class Combo {
         sb.append(", isOnSale=").append(isOnSale);
         sb.append(", createTime=").append(createTime);
         sb.append(", updateTime=").append(updateTime);
+        sb.append(", comboItems=").append(comboItems);
         sb.append("]");
         return sb.toString();
     }

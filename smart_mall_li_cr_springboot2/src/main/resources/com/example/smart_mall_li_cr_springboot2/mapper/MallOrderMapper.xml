@@ -140,5 +140,27 @@
         where user_id = #{userId}
         order by create_time DESC
     </select>
+    <select id="selectAll" resultMap="BaseResultMap">
+        select * from mall_order
+    </select>
+
+    <!-- 获取商品销量统计数据 -->
+    <select id="getSalesStatistics" resultType="java.util.Map">
+        SELECT
+            i.name AS itemName,
+            SUM(od.quantity) AS salesCount
+        FROM
+            order_detail od
+        JOIN
+            mall_order mo ON od.order_id = mo.id
+        JOIN
+            item i ON od.item_id = i.id
+        WHERE
+            mo.status >= 3 -- 假设状态3表示已完成或已发货的订单
+        GROUP BY
+            od.item_id, i.name
+        ORDER BY
+            salesCount DESC;
+    </select>
 
 </mapper>

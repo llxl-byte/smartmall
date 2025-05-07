@@ -108,4 +108,11 @@
         where item_id = #{itemId}
         and behavior_type = #{behaviorType}
     </select>
+
+    <!-- 统计最近一段时间内活跃的用户数 -->
+    <select id="countActiveUsersByTimeRange" resultType="java.lang.Integer">
+        select count(distinct user_id)
+        from user_behavior
+        where create_time between #{startTime} and #{endTime}
+    </select>
 </mapper>

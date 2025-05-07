@@ -109,6 +109,20 @@
 			"style": {
 				"navigationBarTitleText": "发表评价"
 			}
+		},
+		{
+			"path" : "pages/login/qq-login/qq-login",
+			"style" : 
+			{
+				"navigationBarTitleText" : ""
+			}
+		},
+		{
+			"path" : "pages/login/qq-login",
+			"style" : 
+			{
+				"navigationBarTitleText" : ""
+			}
 		}
 	],
 	"globalStyle": {

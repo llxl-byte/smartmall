@@ -77,13 +77,16 @@
 				checkLoginStatus() {
 				try {
 					const userInfo = uni.getStorageSync('userInfo');
+					console.log('获取到的用户信息:', userInfo);
 					if (userInfo) {
 						this.isLogin = true;
 						this.userInfo = userInfo;
-						console.log('已登录用户信息:', this.userInfo);
+						console.log('用户头像URL:', this.userInfo.avatar);
+						console.log('用户名:', this.userInfo.nickname || this.userInfo.username);
 					} else {
 						this.isLogin = false;
 						this.userInfo = {};
+						console.log('未获取到用户信息，显示默认头像');
 					}
 				} catch (e) {
 					console.error('获取登录状态失败', e);
@@ -223,6 +226,10 @@
 	height: 80px;
 	border-radius: 50%;
 	background-color: #fff;
+	object-fit: cover;
+	border: 2px solid #fff;
+	box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+	cursor: pointer;
 }
 
 .login-btn-area {

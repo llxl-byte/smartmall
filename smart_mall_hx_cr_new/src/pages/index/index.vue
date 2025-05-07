@@ -34,11 +34,11 @@
 		</view>
 
 		<!-- 推荐商品 -->
-		<view class="recommend-section" v-if="recommendItems.length > 0">
+		<!-- <view class="recommend-section">
 			<view class="section-header">
 				<text class="section-title">为您推荐</text>
 			</view>
-			<scroll-view scroll-x class="recommend-scroll">
+			<scroll-view scroll-x class="recommend-scroll" v-if="recommendItems.length > 0">
 				<view
 					class="recommend-item"
 					v-for="(item, index) in recommendItems"
@@ -50,14 +50,17 @@
 					<view class="recommend-price">¥{{item.price}}</view>
 				</view>
 			</scroll-view>
-		</view>
+			<view class="no-data-placeholder" v-else>
+				<text>暂无推荐商品</text>
+			</view>
+		</view> -->
 
 		<!-- 热销商品 -->
-		<view class="hot-section" v-if="hotItems.length > 0">
+		<view class="hot-section">
 			<view class="section-header">
 				<text class="section-title">热销商品</text>
 			</view>
-			<scroll-view scroll-x class="hot-scroll">
+			<scroll-view scroll-x class="hot-scroll" v-if="hotItems.length > 0">
 				<view
 					class="hot-item"
 					v-for="(item, index) in hotItems"
@@ -70,12 +73,15 @@
 					<view class="hot-sales">销量: {{item.sales || 0}}</view>
 				</view>
 			</scroll-view>
+			<view class="no-data-placeholder" v-else>
+				<text>暂无热销商品</text>
+			</view>
 		</view>
 
 		<!-- 分类商品列表 -->
 		<view class="item-list">
-			<view class="section-header">
-				<text class="section-title">分类商品</text>
+			<view class="section-header" v-if="itemList.length > 0">
+				<text class="section-title">为您推荐</text>
 			</view>
 			<view
 				class="item-card"
@@ -89,6 +95,9 @@
 					<view class="item-price">¥{{item.price}}</view>
 					<view class="item-sales">销量: {{item.sales || 0}}</view>
 				</view>
+			</view>
+			<view class="no-data-placeholder" v-if="itemList.length === 0">
+				<text>暂无分类商品</text>
 			</view>
 		</view>
 
@@ -245,10 +254,16 @@ export default {
 					success: (res) => {
 						if (res.data && res.data.data) {
 							this.hotItems = res.data.data;
+						} else {
+							console.log('未获取到热销商品数据');
 						}
 					},
 					fail: (err) => {
 						console.error('获取热销商品失败', err);
+						uni.showToast({
+							title: '获取热销商品失败',
+							icon: 'none'
+						});
 					}
 				});
 			},
@@ -262,10 +277,16 @@ export default {
 						success: (res) => {
 							if (res.data && res.data.data) {
 								this.recommendItems = res.data.data;
+							} else {
+								console.log('未获取到推荐商品数据，使用默认数据');
 							}
 						},
 						fail: (err) => {
 							console.error('获取推荐商品失败', err);
+							uni.showToast({
+								title: '获取推荐商品失败',
+								icon: 'none'
+							});
 						}
 					});
 					return;
@@ -277,6 +298,8 @@ export default {
 					success: (res) => {
 						if (res.data && res.data.data) {
 							this.recommendItems = res.data.data;
+						} else {
+							console.log('未获取到个性化推荐数据');
 						}
 					},
 					fail: (err) => {
@@ -287,7 +310,16 @@ export default {
 							success: (res) => {
 								if (res.data && res.data.data) {
 									this.recommendItems = res.data.data;
+								} else {
+									console.log('未获取到热销推荐数据');
 								}
+							},
+							fail: (err2) => {
+								console.error('获取热销推荐失败', err2);
+								uni.showToast({
+									title: '获取推荐商品失败',
+									icon: 'none'
+								});
 							}
 						});
 					}
@@ -444,6 +476,13 @@ export default {
 		font-size: 22rpx;
 		color: #999;
 		margin-top: 5rpx;
+	}
+
+	.no-data-placeholder {
+		padding: 20rpx;
+		text-align: center;
+		color: #999;
+		font-size: 28rpx;
 	}
 
 	.item-card {

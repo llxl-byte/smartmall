@@ -26,11 +26,11 @@
         create_time,update_time
     </sql>
 
-    <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BaseResultMap">
+    <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
         select
         <include refid="Base_Column_List" />
         from mall_user
-        where  id = #{id} 
+        where  id = #{id}
     </select>
     <select id="selectByUsername" parameterType="java.lang.String" resultMap="BaseResultMap">
         select <include refid="Base_Column_List" /> from mall_user where username = #{username}
@@ -145,5 +145,43 @@
             create_time =  #{createTime},
             update_time =  #{updateTime}
         where   id = #{id} 
+    </update>
+
+    <select id="mallUserLogin" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List" /> FROM mall_user
+        WHERE username = #{username} AND password = #{password}
+    </select>
+
+    <select id="selectAll" resultMap="BaseResultMap">
+        select <include refid="Base_Column_List" /> from mall_user
+    </select>
+
+    <!-- 获取总用户数 -->
+    <select id="getTotalUserCount" resultType="java.lang.Integer">
+        SELECT COUNT(*) FROM mall_user
+    </select>
+
+    <!-- 获取今日新增用户数 -->
+    <select id="getNewUserCountToday" resultType="java.lang.Integer">
+        SELECT COUNT(*) FROM mall_user WHERE create_time >= CURDATE()
+    </select>
+
+    <!-- 查询所有商城用户 -->
+    <insert id="mallUserRegister" parameterType="com.example.smart_mall_li_cr_springboot2.pojo.MallUserRegisterParam">
+        INSERT INTO mall_user (username, password, phone, nickname)
+        VALUES (#{username}, #{password}, #{phone}, #{nickname})
+    </insert>
+
+    <update id="updateUserAvatar">
+        UPDATE mall_user
+        SET avatar = #{avatarUrl}
+        WHERE id = #{userId}
+    </update>
+
+    <update id="updateUserInfo" parameterType="com.example.smart_mall_li_cr_springboot2.pojo.MallUser">
+        UPDATE mall_user
+        SET nickname = #{nickname},
+            phone = #{phone}
+        WHERE id = #{id}
     </update>
 </mapper>

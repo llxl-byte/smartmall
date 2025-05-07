@@ -2,9 +2,12 @@
     <view class="cart-container">
         <!-- 空购物车提示 -->
         <view class="empty-cart" v-if="cartItems.length === 0">
-            <image src="/static/empty_cart.png" mode="aspectFit" class="empty-image"></image>
-            <text class="empty-text">购物车还是空的</text>
-            <button class="go-shopping-btn" @click="goShopping">去逛逛</button>
+            <view class="empty-cart-content">
+                <image src="/static/empty_cart.png" mode="aspectFit" class="empty-image"></image>
+                <text class="empty-title">购物车是空的</text>
+                <text class="empty-subtitle">看起来您还没有添加任何商品</text>
+                <button class="go-shopping-btn" @click="goShopping">去逛逛</button>
+            </view>
         </view>
 
         <!-- 购物车列表 -->
@@ -587,8 +590,58 @@ export default {
     background-color: #ccc;
     opacity: 0.6;
 }
-.total-price {
-    margin-left: 10rpx;
-    font-weight: normal;
+
+.empty-cart {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    min-height: calc(100vh - 100rpx - env(safe-area-inset-bottom)); /* 减去底部导航栏高度 */
+    background-color: #f8f8f8;
+    box-sizing: border-box; /* 确保 padding 不会撑大元素 */
+}
+
+.empty-cart-content {
+    display: flex; /* 改为 flex 布局 */
+    flex-direction: column; /* 垂直排列 */
+    align-items: center; /* 水平居中 */
+    /* padding: 60rpx 40rpx; */ /* 移除内边距 */
+    /* background-color: #fff; */ /* 移除背景色 */
+    /* border-radius: 20rpx; */ /* 移除圆角 */
+    /* box-shadow: 0 6rpx 18rpx rgba(0, 0, 0, 0.08); */ /* 移除阴影 */
+}
+
+.empty-image {
+    width: 280rpx; /* 略微调整大小 */
+    height: 280rpx;
+    margin-bottom: 30rpx; /* 调整间距 */
+}
+
+.empty-title {
+    display: block; /* 确保独占一行 */
+    font-size: 34rpx; /* 略微调整大小 */
+    font-weight: bold;
+    color: #333;
+    margin-bottom: 15rpx; /* 调整间距 */
+    text-align: center;
+}
+
+.empty-subtitle {
+    display: block; /* 确保独占一行 */
+    font-size: 28rpx;
+    color: #999; /* 颜色变浅一些 */
+    margin-bottom: 40rpx; /* 调整间距 */
+    text-align: center;
+}
+
+.go-shopping-btn {
+    background-color: #ff6700;
+    color: #fff;
+    font-size: 30rpx; /* 略微调整大小 */
+    padding: 18rpx 60rpx; /* 调整内边距 */
+    border-radius: 50rpx;
+    border: none;
+    cursor: pointer;
+    line-height: 1; /* 确保文字垂直居中 */
 }
 </style>

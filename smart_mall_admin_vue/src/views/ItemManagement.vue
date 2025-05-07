@@ -1,14 +1,324 @@
 <template>
-  <div>
+  <div class="item-management">
     <h2>商品管理</h2>
-    <p>这里将展示商品列表和管理功能。</p>
+    <div class="action-bar">
+      <el-button type="primary" @click="handleAddItem">添加商品</el-button>
+      <el-input v-model="searchQuery" placeholder="搜索商品..." class="search-input" @input="handleSearch" />
+    </div>
+    <el-table :data="filteredItems" style="width: 100%" class="item-table">
+      <el-table-column prop="id" label="ID" width="80" />
+      <el-table-column prop="name" label="商品名称" width="200" />
+      <el-table-column prop="category" label="分类" width="120" />
+      <el-table-column prop="price" label="价格 (¥)" width="100" />
+      <el-table-column prop="stock" label="库存" width="100" />
+      <el-table-column label="图片" width="120">
+        <template #default="scope">
+          <el-image :src="scope.row.imageUrl" style="width: 50px; height: 50px" :preview-src-list="[scope.row.imageUrl]" />
+        </template>
+      </el-table-column>
+      <el-table-column label="操作" width="200">
+        <template #default="scope">
+          <el-button size="small" @click="handleEditItem(scope.row)">编辑</el-button>
+          <el-button size="small" type="danger" @click="handleDeleteItem(scope.row.id)">删除</el-button>
+        </template>
+      </el-table-column>
+    </el-table>
+    <el-pagination
+      v-model:current-page="currentPage"
+      :page-size="pageSize"
+      :total="totalItems"
+      layout="total, prev, pager, next"
+      @current-change="handlePageChange"
+      class="pagination"
+    />
+
+    <!-- 添加/编辑商品对话框 -->
+    <el-dialog :title="dialogTitle" v-model="dialogVisible" width="500px" @close="resetForm">
+      <el-form :model="itemForm" :rules="rules" ref="itemFormRef" label-width="80px">
+        <el-form-item label="商品名称" prop="name">
+          <el-input v-model="itemForm.name" placeholder="请输入商品名称" />
+        </el-form-item>
+        <el-form-item label="分类" prop="category">
+          <el-select v-model="itemForm.category" placeholder="请选择分类">
+            <el-option v-for="cat in categories" :key="cat.value" :label="cat.label" :value="cat.value" />
+          </el-select>
+        </el-form-item>
+        <el-form-item label="价格" prop="price">
+          <el-input-number v-model="itemForm.price" :min="0" :precision="2" placeholder="请输入价格" />
+        </el-form-item>
+        <el-form-item label="库存" prop="stock">
+          <el-input-number v-model="itemForm.stock" :min="0" placeholder="请输入库存数量" />
+        </el-form-item>
+        <el-form-item label="商品描述" prop="description">
+          <el-input type="textarea" v-model="itemForm.description" placeholder="请输入商品描述" rows="3" />
+        </el-form-item>
+        <el-form-item label="商品图片" prop="image">
+          <el-upload
+            :action="uploadAction"
+            :headers="uploadHeaders"
+            :on-success="handleUploadSuccess"
+            :on-error="handleUploadError"
+            :before-upload="beforeUpload"
+            :limit="1"
+            :file-list="fileList"
+            list-type="picture-card"
+          >
+            <i class="el-icon-plus"></i>
+            <template #tip>
+              <div class="el-upload__tip">只能上传jpg/png文件，且不超过2MB</div>
+            </template>
+          </el-upload>
+        </el-form-item>
+      </el-form>
+      <template #footer>
+        <el-button @click="dialogVisible = false">取消</el-button>
+        <el-button type="primary" @click="submitForm">保存</el-button>
+      </template>
+    </el-dialog>
   </div>
 </template>
 
 <script setup>
-// 商品管理页面的逻辑
+import { ref, computed, onMounted } from 'vue'
+import { ElMessage, ElMessageBox } from 'element-plus'
+import request from '../utils/request'
+
+// 商品列表数据
+const items = ref([])
+// 搜索关键字
+const searchQuery = ref('')
+// 当前页码
+const currentPage = ref(1)
+// 每页显示条数
+const pageSize = ref(10)
+// 商品分类选项
+const categories = ref([
+  { value: 'mobile', label: '手机' },
+  { value: 'computer', label: '电脑' },
+  { value: 'accessory', label: '配件' }
+])
+
+// 计算过滤后的商品列表（支持搜索）
+const filteredItems = computed(() => {
+  let result = items.value
+  if (searchQuery.value) {
+    result = result.filter(item =>
+      item.name.toLowerCase().includes(searchQuery.value.toLowerCase())
+    )
+  }
+  return result.slice((currentPage.value - 1) * pageSize.value, currentPage.value * pageSize.value)
+})
+
+// 总条目数
+const totalItems = computed(() => items.value.length)
+
+// 对话框标题
+const dialogTitle = ref('添加商品')
+// 对话框显示状态
+const dialogVisible = ref(false)
+// 是否为编辑模式
+const isEditMode = ref(false)
+// 商品表单数据
+const itemForm = ref({
+  id: null,
+  name: '',
+  category: '',
+  price: 0,
+  stock: 0,
+  description: '',
+  imageUrl: ''
+})
+// 表单引用
+const itemFormRef = ref(null)
+// 表单验证规则
+const rules = {
+  name: [{ required: true, message: '请输入商品名称', trigger: 'blur' }],
+  category: [{ required: true, message: '请选择分类', trigger: 'change' }],
+  price: [{ required: true, message: '请输入价格', trigger: 'blur' }],
+  stock: [{ required: true, message: '请输入库存数量', trigger: 'blur' }]
+}
+// 上传图片相关
+const uploadAction = ref('/api/upload/image') // 后端接口地址，需根据实际情况调整
+const uploadHeaders = ref({
+  'Authorization': `Bearer ${localStorage.getItem('token') || ''}`
+})
+const fileList = ref([])
+
+// 页面加载时获取商品列表
+onMounted(() => {
+  fetchItems()
+})
+
+// 获取商品列表
+const fetchItems = async () => {
+  try {
+    const response = await request.get('/api/items')
+    if (response.data.code === 200) {
+      items.value = response.data.data
+    } else {
+      ElMessage.error('获取商品列表失败: ' + response.data.msg)
+    }
+  } catch (error) {
+    ElMessage.error('获取商品列表失败: ' + error.message)
+  }
+}
+
+// 处理搜索
+const handleSearch = () => {
+  currentPage.value = 1 // 搜索时重置到第一页
+}
+
+// 处理翻页
+const handlePageChange = (page) => {
+  currentPage.value = page
+}
+
+// 处理添加商品
+const handleAddItem = () => {
+  dialogTitle.value = '添加商品'
+  isEditMode.value = false
+  dialogVisible.value = true
+  fileList.value = []
+  resetForm()
+}
+
+// 处理编辑商品
+const handleEditItem = (row) => {
+  dialogTitle.value = '编辑商品'
+  isEditMode.value = true
+  dialogVisible.value = true
+  // 填充表单数据
+  itemForm.value = { ...row }
+  fileList.value = row.imageUrl ? [{ name: '商品图片', url: row.imageUrl }] : []
+}
+
+// 处理删除商品
+const handleDeleteItem = (id) => {
+  ElMessageBox.confirm('确定要删除此商品吗?', '提示', {
+    confirmButtonText: '确定',
+    cancelButtonText: '取消',
+    type: 'warning'
+  }).then(async () => {
+    try {
+      const response = await request.delete(`/api/items/${id}`)
+      if (response.data.code === 200) {
+        ElMessage.success('删除成功')
+        fetchItems() // 重新获取列表
+      } else {
+        ElMessage.error('删除失败: ' + response.data.msg)
+      }
+    } catch (error) {
+      ElMessage.error('删除失败: ' + error.message)
+    }
+  }).catch(() => {
+    ElMessage.info('已取消删除')
+  })
+}
+
+// 重置表单
+const resetForm = () => {
+  itemForm.value = {
+    id: null,
+    name: '',
+    category: '',
+    price: 0,
+    stock: 0,
+    description: '',
+    imageUrl: ''
+  }
+  fileList.value = []
+  if (itemFormRef.value) {
+    itemFormRef.value.resetFields()
+  }
+}
+
+// 提交表单
+const submitForm = () => {
+  itemFormRef.value.validate(async (valid) => {
+    if (valid) {
+      try {
+        let response
+        if (isEditMode.value) {
+          // 编辑模式
+          response = await request.put(`/api/items/${itemForm.value.id}`, itemForm.value)
+        } else {
+          // 添加模式
+          response = await request.post('/api/items', itemForm.value)
+        }
+        if (response.data.code === 200) {
+          ElMessage.success(isEditMode.value ? '更新成功' : '添加成功')
+          dialogVisible.value = false
+          fetchItems() // 重新获取列表
+        } else {
+          ElMessage.error((isEditMode.value ? '更新失败: ' : '添加失败: ') + response.data.msg)
+        }
+      } catch (error) {
+        ElMessage.error((isEditMode.value ? '更新失败: ' : '添加失败: ') + error.message)
+      }
+    } else {
+      return false
+    }
+  })
+}
+
+// 上传图片成功回调
+const handleUploadSuccess = (response, file, fileList) => {
+  if (response.code === 200) {
+    itemForm.value.imageUrl = response.data.url // 假设后端返回的图片URL在data.url中
+    ElMessage.success('图片上传成功')
+  } else {
+    ElMessage.error('图片上传失败: ' + response.msg)
+    fileList.splice(fileList.indexOf(file), 1) // 移除失败的文件
+  }
+}
+
+// 上传图片失败回调
+const handleUploadError = (error, file, fileList) => {
+  ElMessage.error('图片上传失败: ' + error.message)
+  fileList.splice(fileList.indexOf(file), 1) // 移除失败的文件
+}
+
+// 上传前检查
+const beforeUpload = (file) => {
+  const isImage = file.type === 'image/jpeg' || file.type === 'image/png'
+  const isLt2M = file.size / 1024 / 1024 < 2
+  if (!isImage) {
+    ElMessage.error('上传图片只能是 JPG/PNG 格式!')
+  }
+  if (!isLt2M) {
+    ElMessage.error('上传图片大小不能超过 2MB!')
+  }
+  return isImage && isLt2M
+}
 </script>
 
 <style scoped>
-/* 商品管理页面的样式 */
+.item-management {
+  padding: 20px;
+}
+
+.action-bar {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 20px;
+}
+
+.search-input {
+  width: 300px;
+}
+
+.item-table {
+  margin-bottom: 20px;
+}
+
+.pagination {
+  display: flex;
+  justify-content: center;
+}
+
+.el-upload__tip {
+  font-size: 12px;
+  color: #606266;
+  margin-top: 7px;
+}
 </style>

@@ -1,10 +1,9 @@
-package com.example.smart_mall_li_cr_springboot2.service.impl;
+package com.example.smart_mall_li_cr_springboot2.service;
 
 import com.example.smart_mall_li_cr_springboot2.dto.AvailableCouponsRequestDTO;
 import com.example.smart_mall_li_cr_springboot2.dto.CouponDTO;
 import com.example.smart_mall_li_cr_springboot2.mapper.CouponMapper;
 import com.example.smart_mall_li_cr_springboot2.pojo.Coupon; // 假设 POJO 类名为 Coupon
-import com.example.smart_mall_li_cr_springboot2.service.CouponService;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;

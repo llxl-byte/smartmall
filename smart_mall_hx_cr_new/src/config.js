@@ -4,7 +4,11 @@ const getCodespaceUrl = () => {
     // 在 GitHub Codespaces 环境中，使用相同的域名，但端口号改为 8083
     const domain = window.location.hostname;
     return `https://${domain.replace('-8080', '-8083')}`;
+  } else if(window.location.hostname !== 'localhost') {
+    //在网络环境下，使用相同的域名，但端口号改为8083
+    return `https://${window.location.hostname}:8083`; 
   }
+
   return 'http://localhost:8083'; // 本地开发环境
 };
 

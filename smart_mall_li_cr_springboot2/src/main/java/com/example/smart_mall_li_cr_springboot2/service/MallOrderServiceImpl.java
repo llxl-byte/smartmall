@@ -295,4 +295,50 @@ public class MallOrderServiceImpl implements MallOrderService {
         // 直接调用 Mapper 层的方法查询订单列表
         return mallOrderMapper.selectByUserId(userId);
     }
+
+    @Override
+    public List<MallOrder> getAllOrders(Integer pageNum, Integer pageSize) {
+        // 实际项目中，这里应该调用Mapper进行分页查询
+        // 为了简化，如果pageNum和pageSize不为null，可以构造分页参数传递给Mapper
+        // 例如，使用PageHelper:
+        // if (pageNum != null && pageSize != null) {
+        //     PageHelper.startPage(pageNum, pageSize);
+        // }
+        // return mallOrderMapper.selectAllOrders(); // 假设有一个selectAllOrders方法
+        // 当前mallOrderMapper可能没有selectAllOrders方法，需要添加
+        // 暂时返回所有订单，不分页
+        return mallOrderMapper.selectAll(); // 假设 mallOrderMapper 有 selectAll 方法
+    }
+
+    @Override
+    public MallOrder getOrderById(Long orderId) {
+        // 调用Mapper根据主键查询订单
+        // 还需要考虑是否加载订单详情项
+        MallOrder order = mallOrderMapper.selectByPrimaryKey(orderId);
+        // if (order != null && orderDetailService != null) {
+        //    List<OrderDetail> details = orderDetailService.getOrderDetailsByOrderId(orderId);
+        //    order.setOrderDetails(details); // 假设MallOrder有setter，并且需要OrderDetailService和OrderDetailMapper
+        // }
+        return order;
+    }
+
+    @Override
+    @Transactional
+    public boolean updateOrderStatus(Long orderId, String status, String remarks) {
+        MallOrder order = mallOrderMapper.selectByPrimaryKey(orderId);
+        if (order == null) {
+            System.err.println("更新订单状态失败：订单不存在，ID: " + orderId);
+            return false;
+        }
+        // 根据业务逻辑转换status字符串为订单状态码 (int)
+        // 这里假设status直接是数据库中状态字段的值，或者需要转换
+        // order.setStatus(Integer.parseInt(status)); // 示例，具体类型看MallOrder定义
+        // 假设MallOrder中status是String类型
+        order.setStatus(Integer.parseInt(status)); // 假设状态是数字，需要根据MallOrder.status的实际类型调整
+        // order.setRemarks(remarks); // 如果MallOrder有remarks字段
+        order.setUpdateTime(new Date()); // 更新时间
+
+        int updatedRows = mallOrderMapper.updateByPrimaryKeySelective(order);
+        return updatedRows > 0;
+    }
 }

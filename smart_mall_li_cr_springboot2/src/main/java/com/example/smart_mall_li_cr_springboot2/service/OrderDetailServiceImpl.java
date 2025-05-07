@@ -1,8 +1,7 @@
-package com.example.smart_mall_li_cr_springboot2.service.impl;
+package com.example.smart_mall_li_cr_springboot2.service;
 
 import com.example.smart_mall_li_cr_springboot2.mapper.OrderDetailMapper;
 import com.example.smart_mall_li_cr_springboot2.pojo.OrderDetail;
-import com.example.smart_mall_li_cr_springboot2.service.OrderDetailService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

@@ -196,4 +196,75 @@ public class MallOrderController {
             return Result.error("查询订单失败");
         }
     }
+
+    /**
+     * 后台管理端：获取所有订单列表（可考虑分页）
+     * @param pageNum 当前页码 (可选, 用于分页)
+     * @param pageSize 每页数量 (可选, 用于分页)
+     * @return 包含所有订单列表的Result对象
+     */
+    @GetMapping("/admin/orders/all")
+    public Result<List<MallOrder>> getAllOrders(@RequestParam(required = false) Integer pageNum,
+                                                @RequestParam(required = false) Integer pageSize) {
+        System.out.println("后台管理端：查询所有订单列表");
+        try {
+            // 实际项目中应考虑分页逻辑
+            List<MallOrder> orderList = mallOrderService.getAllOrders(pageNum, pageSize);
+            return Result.success(orderList);
+        } catch (Exception e) {
+            System.err.println("后台管理端查询所有订单列表失败: " + e.getMessage());
+            e.printStackTrace();
+            return Result.error("查询所有订单失败");
+        }
+    }
+
+    /**
+     * 后台管理端：根据订单ID获取订单详情
+     * @param orderId 订单ID
+     * @return 包含订单详情的Result对象
+     */
+    @GetMapping("/admin/orders/{orderId}")
+    public Result<MallOrder> getOrderDetailById(@PathVariable Long orderId) {
+        System.out.println("后台管理端：查询订单详情，订单ID: " + orderId);
+        try {
+            MallOrder order = mallOrderService.getOrderById(orderId);
+            if (order != null && orderDetailService != null) {
+                // 如果需要，可以在这里加载订单的详细商品信息
+                // List<OrderDetail> details = orderDetailService.getOrderDetailsByOrderId(orderId);
+                // order.setOrderDetails(details); // 假设MallOrder有setter
+            }
+            return Result.success(order);
+        } catch (Exception e) {
+            System.err.println("后台管理端查询订单详情失败: " + e.getMessage());
+            e.printStackTrace();
+            return Result.error("查询订单详情失败");
+        }
+    }
+
+    /**
+     * 后台管理端：处理退货或售后请求
+     * @param orderId 订单ID
+     * @param requestBody 包含处理意见和状态等信息
+     * @return 处理结果
+     */
+    @PostMapping("/admin/orders/{orderId}/process")
+    public Result<Void> processReturnOrRefund(@PathVariable Long orderId, @RequestBody Map<String, String> requestBody) {
+        System.out.println("后台管理端：处理订单退货/售后，订单ID: " + orderId + ", 处理信息: " + requestBody);
+        try {
+            String status = requestBody.get("status"); // 例如：REFUNDED, RETURN_ACCEPTED
+            String remarks = requestBody.get("remarks"); // 处理备注
+            
+            // 调用服务层处理订单状态更新
+            boolean success = mallOrderService.updateOrderStatus(orderId, status, remarks);
+            if (success) {
+                return Result.success(null, "订单处理成功");
+            } else {
+                return Result.error("订单处理失败");
+            }
+        } catch (Exception e) {
+            System.err.println("后台管理端处理订单退货/售后失败: " + e.getMessage());
+            e.printStackTrace();
+            return Result.error("订单处理操作失败");
+        }
+    }
 }

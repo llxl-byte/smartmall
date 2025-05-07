@@ -1,10 +1,9 @@
-package com.example.smart_mall_li_cr_springboot2.service.impl;
+package com.example.smart_mall_li_cr_springboot2.service;
 
 import com.example.smart_mall_li_cr_springboot2.dto.CreateOrderRequestDTO;
 import com.example.smart_mall_li_cr_springboot2.dto.CreateOrderResponseDTO;
 import com.example.smart_mall_li_cr_springboot2.mapper.*; // 引入所有 Mapper
 import com.example.smart_mall_li_cr_springboot2.pojo.*; // 引入所有 Pojo
-import com.example.smart_mall_li_cr_springboot2.service.OrderService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -80,11 +79,11 @@ public class OrderServiceImpl implements OrderService {
 
         // 6. 创建订单主表记录 (mall_order)
         MallOrder order = new MallOrder();
-        order.setOrderId("ORD-" + UUID.randomUUID().toString().replace("-", "")); // 生成唯一订单号
-        order.setUserId(userId);
+        order.setOrderNo("ORD-" + UUID.randomUUID().toString().replace("-", "")); // 生成唯一订单号
+        order.setUserId(userId.intValue()); // 将Long转为Integer
         order.setTotalAmount(totalItemAmount); // 商品总金额
         order.setDiscountAmount(couponDiscount); // 优惠金额
-        order.setPaymentAmount(finalAmount); // 实付金额
+        order.setActualAmount(finalAmount); // 实付金额
         order.setStatus(0); // 0: 待支付 (或其他初始状态)
         order.setCreateTime(new Date());
         order.setRemark(requestDTO.getRemark());
@@ -100,7 +99,7 @@ public class OrderServiceImpl implements OrderService {
         for (CreateOrderRequestDTO.OrderItemDTO itemDTO : itemsDTO) {
             Item item = itemMapper.findById(itemDTO.getItemId()); // 再次获取商品信息用于详情
             OrderDetail detail = new OrderDetail();
-            detail.setOrderId(order.getOrderId());
+            detail.setOrderId(order.getId() != null ? order.getId() : null); // 检查order.getId()是否为null
             detail.setItemId(itemDTO.getItemId());
             detail.setItemName(item.getName());
             detail.setItemImage(item.getMainImage()); // 获取主图
@@ -120,7 +119,7 @@ public class OrderServiceImpl implements OrderService {
         // 8. 更新优惠券状态 (如果使用了)
         if (coupon != null) {
             // 需要 CouponMapper 提供 updateStatus 方法
-            couponMapper.updateStatus(couponId, 1, new Date(), order.getOrderId()); // 1: 已使用
+            couponMapper.updateStatus(couponId, 1, new Date(), order.getOrderNo()); // 1: 已使用
         }
 
         // 9. (可选) 清空购物车
@@ -128,7 +127,7 @@ public class OrderServiceImpl implements OrderService {
 
         // 10. 准备并返回响应 DTO
         CreateOrderResponseDTO responseDTO = new CreateOrderResponseDTO();
-        responseDTO.setOrderId(order.getOrderId());
+        responseDTO.setOrderId(order.getOrderNo());
         responseDTO.setPaymentAmount(finalAmount);
 
         return responseDTO;

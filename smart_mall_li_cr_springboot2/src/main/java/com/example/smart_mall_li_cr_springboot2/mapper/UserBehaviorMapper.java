@@ -50,4 +50,12 @@ public interface UserBehaviorMapper {
      * @return 行为次数
      */
     int countByItemIdAndType(@Param("itemId") Integer itemId, @Param("behaviorType") Integer behaviorType);
+
+    /**
+     * 统计最近一段时间内活跃的用户数
+     * @param startTime 开始时间，格式为 yyyy-MM-dd HH:mm:ss
+     * @param endTime 结束时间，格式为 yyyy-MM-dd HH:mm:ss
+     * @return 活跃用户数
+     */
+    int countActiveUsersByTimeRange(@Param("startTime") String startTime, @Param("endTime") String endTime);
 }

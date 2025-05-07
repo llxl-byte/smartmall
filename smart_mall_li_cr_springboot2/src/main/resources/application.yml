@@ -15,8 +15,22 @@ spring:
     #改为3306端口
     url: jdbc:mysql://127.0.0.1:13306/smart_mall_li_cr_springboot2?useUnicode=true&characterEncoding=UTF-8&serverTimezone=GMT%2b8
     username: root
-    #密码放在''中，不加‘’也可以
+    #密码放在''中，不加''也可以
     password: '1234'
+    # Redis配置
+    redis:
+      host: 127.0.0.1
+      port: 6379
+      database: 0
+      # 如果Redis有密码，请取消注释并设置
+      # password: yourpassword
+      timeout: 10000ms
+    # 文件上传配置
+  servlet:
+    multipart:
+      max-file-size: 10MB
+      max-request-size: 10MB
+      enabled: true
   # knife4j配置
   mvc:
     path match:

@@ -106,21 +106,57 @@
 								uni.removeStorageSync('savedPassword');
 							}
 
-							uni.setStorageSync('userInfo', res.data.data);
+							// 登录成功，处理响应数据
+							uni.showToast({
+								title: '登录成功',
+								icon: 'success',
+								duration: 2000
+							});
+
+							// 检查响应数据中是否包含JWT令牌
+							if (res.data && res.data.data) {
+								const token = res.data.data; // 获取JWT令牌
+								// 将JWT令牌存储到localStorage中，以便后续请求使用
+								localStorage.setItem('jwtToken', token);
+								console.log('JWT Token stored:', token); // 打印存储的令牌
+							} else {
+								console.warn('Login successful, but no JWT token received in response data.');
+								// 如果登录成功但没有令牌，可能需要根据实际情况处理，例如显示警告或阻止跳转
+							}
+
+
+							if (this.rememberPassword) {
+								uni.setStorageSync('savedUsername', this.username);
+								uni.setStorageSync('savedPassword', this.password);
+							} else {
+								uni.removeStorageSync('savedUsername');
+								uni.removeStorageSync('savedPassword');
+							}
+
+							// uni.setStorageSync('userInfo', res.data.data); // 如果后端返回的用户信息在其他字段，请修改这里
 
 							setTimeout(() => {
 								uni.switchTab({
-									url: '/pages/index/index'
+									url: '/pages/main/main' // 假设登录成功后跳转到main页面
 								});
 							}, 1500);
 						} else {
+							// 登录失败，显示错误信息
 							this.errorMessage = res.data?.message || '登录失败，请稍后再试';
+							console.error('Login failed:', res.data); // 打印失败响应
 						}
 					},
 					fail: (err) => {
+						// 网络请求失败，显示错误信息
 						console.error('Request failed:', err);
 						this.errorMessage = '网络请求失败，请检查网络连接';
 					}
+				});
+			},
+			goToRegister() {
+				// 跳转到注册页面
+				uni.navigateTo({
+					url: '/pages/register/register'
 				});
 			}
 		}
