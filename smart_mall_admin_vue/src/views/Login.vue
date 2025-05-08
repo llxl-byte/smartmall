@@ -67,22 +67,28 @@ const handleLogin = async () => {
         // 发送 POST 请求到后端 /admin/login 接口
         const response = await request.post('/admin/login', loginForm)
 
-        // 检查后端返回的数据结构 (假设后端返回 { code: '200', msg: '...', data: ... })
-        // 请根据你后端 Result 类的实际情况调整判断条件
-        // 判断后端返回的 success 字段是否为 true
+        // 检查后端返回的数据结构 (后端返回 { success: true/false, message: '...', data: ... })
+        console.log('登录响应:', response.data)
+
         if (response.data && response.data.success) {
           ElMessage.success('登录成功')
-          // --- 可选：存储 token 或用户信息 ---
-          // 例如，如果后端在 data 中返回了 token:
-          // if (response.data.data && response.data.data.token) {
-          //   localStorage.setItem('admin-token', response.data.data.token)
-          // }
-          // ------------------------------------
-          router.push('/') // 跳转到仪表盘页面
+
+          // 存储管理员信息
+          const adminInfo = response.data.data
+          localStorage.setItem('admin-info', JSON.stringify(adminInfo))
+
+          // 存储JWT令牌
+          // 在实际项目中，后端应该返回JWT令牌
+          // 这里我们使用管理员的用户名生成一个JWT令牌
+          const jwtToken = 'Bearer ' + btoa(loginForm.username + ':' + new Date().getTime())
+          localStorage.setItem('admin-token', jwtToken)
+
+          // 获取重定向URL (如果有)
+          const redirect = router.currentRoute.value.query.redirect || '/'
+          router.push(redirect) // 跳转到重定向URL或仪表盘页面
         } else {
-          // 如果 code 不是 '200' 或数据结构不符合预期，显示后端返回的错误消息
-          // 读取后端的 message 字段作为错误提示
-          ElMessage.error(response.data.message || '登录失败，未知错误')
+          // 如果登录失败，显示后端返回的错误消息
+          ElMessage.error(response.data.message || '用户名或密码错误')
         }
       } catch (error) {
         // 处理请求本身发生的错误 (例如网络问题、后端服务未启动等)

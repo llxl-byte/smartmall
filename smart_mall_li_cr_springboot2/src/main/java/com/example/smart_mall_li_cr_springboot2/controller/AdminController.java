@@ -18,7 +18,7 @@ import java.util.Map;
  */
 @RestController // 标记为 RESTful 控制器
 @RequestMapping("/admin") // 基础请求路径
-@CrossOrigin(origins = "https://animated-space-cod-r4ppq64r6r6jfx6vq-5173.app.github.dev", allowCredentials = "true") // 添加 CrossOrigin 注解
+@CrossOrigin(origins = {"http://localhost:5173", "http://127.0.0.1:5173"}, allowCredentials = "true") // 允许本地前端访问
 public class AdminController {
 
     @Autowired // 自动注入 AdminService 实例

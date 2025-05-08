@@ -11,12 +11,18 @@ public interface ItemService {
     List<Item> selectByItemName(String itemName);
 
     Item selectByItemId(Long itemId);
-    
+
     int addItem(Item item);
-    
+
     int updateItem(Item item);
-    
+
     int deleteItem(Long itemId);
-    
+
     String uploadItemImage(MultipartFile file, Long itemId);
+
+    /**
+     * 获取所有商品列表
+     * @return 所有商品列表
+     */
+    List<Item> getAllItems();
 }

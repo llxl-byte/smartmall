@@ -215,4 +215,12 @@
             LIMIT #{limit}
         </if>
     </select>
+
+    <!-- 查询所有商品 -->
+    <select id="selectAll" resultMap="BaseResultMap">
+        SELECT
+        <include refid="Base_Column_List" />
+        FROM item
+        ORDER BY id DESC
+    </select>
 </mapper>

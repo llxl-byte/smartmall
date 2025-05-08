@@ -15,6 +15,12 @@ import java.util.UUID; // 新增导入
 public class ItemServiceImpl implements ItemService {
     @Autowired
     ItemMapper itemMapper;
+
+    @Override
+    public List<Item> getAllItems() {
+        // 调用 Mapper 获取所有商品
+        return itemMapper.selectAll();
+    }
     @Override
     @Cacheable(value = "category", key = "#categoryId")
     public List<Item> selectByCategoryId(Integer categoryId) {

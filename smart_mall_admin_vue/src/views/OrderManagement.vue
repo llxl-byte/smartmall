@@ -90,7 +90,7 @@ const filteredOrders = computed(() => {
   let result = orders.value
   if (searchQuery.value) {
     result = result.filter(order =>
-      order.id.toString().includes(searchQuery.value) || 
+      order.id.toString().includes(searchQuery.value) ||
       order.userName.toLowerCase().includes(searchQuery.value.toLowerCase())
     )
   }
@@ -123,13 +123,60 @@ onMounted(() => {
 // 获取订单列表
 const fetchOrders = async () => {
   try {
-    const response = await request.get('/api/orders')
-    if (response.data.code === 200) {
-      orders.value = response.data.data
+    // 直接使用fetch发送请求，绕过axios的拦截器
+    const response = await fetch('http://localhost:8083/admin/orders/all')
+    const data = await response.json()
+    console.log('直接获取的订单列表数据:', data)
+
+    if (data && data.success && Array.isArray(data.data)) {
+      // 将后端返回的订单数据转换为前端需要的格式
+      orders.value = data.data.map(order => {
+        // 尝试解析addressInfo字段，如果是JSON字符串
+        let addressInfo = order.addressInfo || ''
+        try {
+          if (typeof addressInfo === 'string' && addressInfo.startsWith('{')) {
+            const addressObj = JSON.parse(addressInfo)
+            addressInfo = `${addressObj.name} ${addressObj.phone} ${addressObj.address}`
+          }
+        } catch (e) {
+          console.error('解析地址信息失败:', e)
+        }
+
+        // 根据状态码转换为状态文本
+        let statusText = '未知'
+        switch(order.status) {
+          case 0: statusText = '待支付'; break;
+          case 1: statusText = '已支付'; break;
+          case 2: statusText = '已发货'; break;
+          case 3: statusText = '已完成'; break;
+          case 4: statusText = '已取消'; break;
+          case 5: statusText = '申请退货'; break;
+          case 6: statusText = '退货完成'; break;
+          default: statusText = `状态${order.status}`;
+        }
+
+        return {
+          id: order.id,
+          orderNo: order.orderNo,
+          userName: `用户ID: ${order.userId}`, // 暂时使用用户ID，后续可以获取用户名称
+          userId: order.userId,
+          totalAmount: order.totalAmount,
+          actualAmount: order.actualAmount,
+          status: statusText,
+          address: addressInfo,
+          paymentTime: order.paymentTime ? new Date(order.paymentTime).toLocaleString() : '未支付',
+          deliveryTime: order.deliveryTime ? new Date(order.deliveryTime).toLocaleString() : '未发货',
+          confirmTime: order.confirmTime ? new Date(order.confirmTime).toLocaleString() : '未确认',
+          createTime: order.createTime ? new Date(order.createTime).toLocaleString() : '未知',
+          items: [] // 默认空数组，后续可以加载订单详情
+        }
+      })
+      console.log('处理后的订单数据:', orders.value)
     } else {
-      ElMessage.error('获取订单列表失败: ' + response.data.msg)
+      ElMessage.error('获取订单列表失败: ' + (data ? data.message : '未知错误'))
     }
   } catch (error) {
+    console.error('获取订单列表错误:', error);
     ElMessage.error('获取订单列表失败: ' + error.message)
   }
 }
@@ -145,8 +192,51 @@ const handlePageChange = (page) => {
 }
 
 // 查看订单详情
-const handleViewDetail = (row) => {
-  currentOrder.value = row
+const handleViewDetail = async (row) => {
+  try {
+    // 直接使用fetch发送请求，获取订单详情
+    const response = await fetch(`http://localhost:8083/admin/orders/${row.id}`)
+    const data = await response.json()
+    console.log('订单详情响应:', data)
+
+    if (data && data.success && data.data) {
+      // 先使用列表中的基本信息
+      currentOrder.value = { ...row }
+
+      // 再获取详情中的商品列表
+      // 如果后端返回了详情商品列表，则使用后端数据
+      // 如果没有，则再发请求获取详情
+
+      // 获取订单详情中的商品列表
+      const detailResponse = await fetch(`http://localhost:8083/admin/orders/${row.id}/details`)
+      const detailData = await detailResponse.json()
+      console.log('订单商品详情响应:', detailData)
+
+      if (detailData && detailData.success && Array.isArray(detailData.data)) {
+        // 将订单详情中的商品列表转换为前端需要的格式
+        currentOrder.value.items = detailData.data.map(item => ({
+          name: item.itemName,
+          price: item.price,
+          quantity: item.quantity,
+          totalPrice: item.totalPrice,
+          image: item.itemImage
+        }))
+      } else {
+        // 如果获取失败，使用空数组
+        currentOrder.value.items = []
+        console.warn('获取订单商品详情失败')
+      }
+    } else {
+      ElMessage.error('获取订单详情失败: ' + (data ? data.message : '未知错误'))
+      return
+    }
+  } catch (error) {
+    console.error('获取订单详情错误:', error)
+    ElMessage.error('获取订单详情失败: ' + error.message)
+    return
+  }
+
+  // 显示详情对话框
   detailDialogVisible.value = true
 }
 
@@ -170,18 +260,30 @@ const submitRefundForm = () => {
     type: 'warning'
   }).then(async () => {
     try {
-      const response = await request.post(`/api/orders/${refundForm.value.orderId}/refund`, {
-        status: refundForm.value.refundStatus,
-        remark: refundForm.value.remark
+      // 直接使用fetch发送请求
+      const response = await fetch(`http://localhost:8083/admin/orders/${refundForm.value.orderId}/process`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          status: refundForm.value.refundStatus === 'approved' ? '6' : '4', // 批准退货状态为6，拒绝退货状态为4（取消）
+          remarks: refundForm.value.remark
+        })
       })
-      if (response.data.code === 200) {
+
+      const data = await response.json()
+      console.log('退货处理响应:', data)
+
+      if (data && data.success) {
         ElMessage.success('退货处理成功')
         refundDialogVisible.value = false
         fetchOrders() // 重新获取列表
       } else {
-        ElMessage.error('退货处理失败: ' + response.data.msg)
+        ElMessage.error('退货处理失败: ' + (data ? data.message : '未知错误'))
       }
     } catch (error) {
+      console.error('退货处理错误:', error)
       ElMessage.error('退货处理失败: ' + error.message)
     }
   }).catch(() => {

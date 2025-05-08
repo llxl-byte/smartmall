@@ -138,28 +138,67 @@ const rules = {
   stock: [{ required: true, message: '请输入库存数量', trigger: 'blur' }]
 }
 // 上传图片相关
-const uploadAction = ref('/api/upload/image') // 后端接口地址，需根据实际情况调整
+const uploadAction = ref('/admin/items/upload') // 后端接口地址
 const uploadHeaders = ref({
-  'Authorization': `Bearer ${localStorage.getItem('token') || ''}`
+  'Authorization': `Bearer ${localStorage.getItem('admin-token') || ''}`
 })
 const fileList = ref([])
 
-// 页面加载时获取商品列表
+// 页面加载时获取商品列表和分类
 onMounted(() => {
   fetchItems()
+  fetchCategories()
 })
 
 // 获取商品列表
 const fetchItems = async () => {
   try {
-    const response = await request.get('/api/items')
-    if (response.data.code === 200) {
-      items.value = response.data.data
+    // 直接使用fetch发送请求，绕过axios的拦截器
+    const response = await fetch('http://localhost:8083/admin/items')
+    const data = await response.json()
+    console.log('直接获取的商品列表数据:', data)
+
+    if (data && data.success && Array.isArray(data.data)) {
+      // 将后端返回的商品数据转换为前端需要的格式
+      items.value = data.data.map(item => ({
+        id: item.id,
+        name: item.name,
+        category: item.categoryId ? item.categoryId.toString() : '', // 暂时使用分类ID，后续可以获取分类名称
+        price: item.price,
+        stock: item.stock,
+        description: item.description || '',
+        imageUrl: item.mainImage || ''
+      }))
+      console.log('处理后的商品数据:', items.value)
     } else {
-      ElMessage.error('获取商品列表失败: ' + response.data.msg)
+      ElMessage.error('获取商品列表失败: ' + (data ? data.message : '未知错误'))
     }
   } catch (error) {
+    console.error('获取商品列表错误:', error);
     ElMessage.error('获取商品列表失败: ' + error.message)
+  }
+}
+
+// 获取商品分类
+const fetchCategories = async () => {
+  try {
+    const response = await fetch('http://localhost:8083/selectAll')
+    const data = await response.json()
+    console.log('直接获取的分类数据:', data)
+
+    if (Array.isArray(data)) {
+      // 将后端返回的分类数据转换为前端需要的格式
+      categories.value = data.map(cat => ({
+        value: cat.id.toString(),
+        label: cat.name
+      }))
+      console.log('处理后的分类数据:', categories.value)
+    } else {
+      ElMessage.error('获取分类列表失败')
+    }
+  } catch (error) {
+    console.error('获取分类列表错误:', error);
+    ElMessage.error('获取分类列表失败: ' + error.message)
   }
 }
 
@@ -200,14 +239,21 @@ const handleDeleteItem = (id) => {
     type: 'warning'
   }).then(async () => {
     try {
-      const response = await request.delete(`/api/items/${id}`)
-      if (response.data.code === 200) {
+      // 直接使用fetch发送请求
+      const response = await fetch(`http://localhost:8083/admin/items/${id}`, {
+        method: 'DELETE'
+      })
+      const data = await response.json()
+      console.log('删除商品响应:', data)
+
+      if (data && data.success) {
         ElMessage.success('删除成功')
         fetchItems() // 重新获取列表
       } else {
-        ElMessage.error('删除失败: ' + response.data.msg)
+        ElMessage.error('删除失败: ' + (data ? data.message : '未知错误'))
       }
     } catch (error) {
+      console.error('删除商品错误:', error)
       ElMessage.error('删除失败: ' + error.message)
     }
   }).catch(() => {
@@ -237,22 +283,43 @@ const submitForm = () => {
   itemFormRef.value.validate(async (valid) => {
     if (valid) {
       try {
-        let response
-        if (isEditMode.value) {
-          // 编辑模式
-          response = await request.put(`/api/items/${itemForm.value.id}`, itemForm.value)
-        } else {
-          // 添加模式
-          response = await request.post('/api/items', itemForm.value)
-        }
-        if (response.data.code === 200) {
+        console.log('提交的商品数据:', itemForm.value);
+
+        // 准备请求参数
+        const url = isEditMode.value
+          ? `http://localhost:8083/admin/items/${itemForm.value.id}`
+          : 'http://localhost:8083/admin/items';
+
+        const method = isEditMode.value ? 'PUT' : 'POST';
+
+        // 直接使用fetch发送请求
+        const response = await fetch(url, {
+          method: method,
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            name: itemForm.value.name,
+            categoryId: parseInt(itemForm.value.category),
+            price: parseFloat(itemForm.value.price),
+            stock: parseInt(itemForm.value.stock),
+            description: itemForm.value.description,
+            mainImage: itemForm.value.imageUrl
+          })
+        });
+
+        const data = await response.json();
+        console.log('响应数据:', data);
+
+        if (data && data.success) {
           ElMessage.success(isEditMode.value ? '更新成功' : '添加成功')
           dialogVisible.value = false
           fetchItems() // 重新获取列表
         } else {
-          ElMessage.error((isEditMode.value ? '更新失败: ' : '添加失败: ') + response.data.msg)
+          ElMessage.error((isEditMode.value ? '更新失败: ' : '添加失败: ') + (data ? data.message : '未知错误'))
         }
       } catch (error) {
+        console.error('提交商品数据错误:', error);
         ElMessage.error((isEditMode.value ? '更新失败: ' : '添加失败: ') + error.message)
       }
     } else {
@@ -263,11 +330,11 @@ const submitForm = () => {
 
 // 上传图片成功回调
 const handleUploadSuccess = (response, file, fileList) => {
-  if (response.code === 200) {
-    itemForm.value.imageUrl = response.data.url // 假设后端返回的图片URL在data.url中
+  if (response.success) {
+    itemForm.value.imageUrl = response.data // 后端返回的图片URL
     ElMessage.success('图片上传成功')
   } else {
-    ElMessage.error('图片上传失败: ' + response.msg)
+    ElMessage.error('图片上传失败: ' + response.message)
     fileList.splice(fileList.indexOf(file), 1) // 移除失败的文件
   }
 }

@@ -34,6 +34,12 @@ public interface ItemMapper {
     List<Item>selectByItemName(String itemName);
 
     /**
+     * 查询所有商品
+     * @return 所有商品列表
+     */
+    List<Item> selectAll();
+
+    /**
      * 根据ID查询商品信息，并锁定行 (用于防止并发修改库存)
      * @param id 商品ID
      * @return 商品对象

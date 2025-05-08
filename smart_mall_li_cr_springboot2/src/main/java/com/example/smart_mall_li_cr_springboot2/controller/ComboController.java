@@ -13,7 +13,7 @@ import java.util.List;
  */
 @RestController
 @RequestMapping("/admin/combos") // 后台管理端的套餐接口
-@CrossOrigin(origins = "*", allowCredentials = "true") // 根据您的前端地址修改
+@CrossOrigin(origins = {"http://localhost:5173", "http://127.0.0.1:5173"}, allowCredentials = "true") // 允许本地前端访问
 public class ComboController {
 
     @Autowired // 自动注入 ComboService 实例
@@ -40,11 +40,14 @@ public class ComboController {
 
     /**
      * 编辑套餐
+     * @param comboId 套餐ID
      * @param combo 套餐对象
      * @return 操作结果
      */
-    @PutMapping
-    public Result<Void> updateCombo(@RequestBody Combo combo) {
+    @PutMapping("/{comboId}")
+    public Result<Void> updateCombo(@PathVariable Integer comboId, @RequestBody Combo combo) {
+        // 确保路径参数和请求体中的ID一致
+        combo.setId(comboId);
         try {
             boolean success = comboService.updateCombo(combo);
             if (success) {

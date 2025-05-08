@@ -11,7 +11,7 @@ import java.sql.Timestamp;
  * 管理员实体类
  */
 @Data
-@TableName("backend_admin") // 指向后台管理员表
+@TableName("admin") // 指向后台管理员表
 public class Admin {
 
     @TableId(type = IdType.AUTO) // 主键自增

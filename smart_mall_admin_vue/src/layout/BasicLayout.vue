@@ -19,6 +19,7 @@
            <el-menu-item index="/users">用户管理</el-menu-item>
            <el-menu-item index="/items">商品管理</el-menu-item>
            <el-menu-item index="/orders">订单管理</el-menu-item>
+           <el-menu-item index="/combos">套餐管理</el-menu-item>
         </el-sub-menu>
         <!-- 更多菜单项 -->
       </el-menu>
@@ -26,8 +27,22 @@
 
     <el-container>
       <el-header class="header">
-        <div>面包屑导航 / 其他信息</div>
-        <div>用户头像 / 下拉菜单</div>
+        <div class="breadcrumb">智能商城后台管理系统</div>
+        <div class="user-info">
+          <el-dropdown @command="handleCommand">
+            <span class="el-dropdown-link">
+              <el-avatar :size="32" :icon="User" />
+              {{ adminInfo.username || '管理员' }}
+              <el-icon class="el-icon--right"><arrow-down /></el-icon>
+            </span>
+            <template #dropdown>
+              <el-dropdown-menu>
+                <el-dropdown-item command="profile">个人信息</el-dropdown-item>
+                <el-dropdown-item command="logout" divided>退出登录</el-dropdown-item>
+              </el-dropdown-menu>
+            </template>
+          </el-dropdown>
+        </div>
       </el-header>
       <el-main class="main-content">
         <router-view /> <!-- 子路由对应的页面组件将在这里显示 -->
@@ -37,10 +52,56 @@
 </template>
 
 <script setup>
-// 导入 Element Plus 图标 (如果需要的话，但通常全局注册更方便)
-// import { Menu as IconMenu, Location } from '@element-plus/icons-vue'
+// 导入 Element Plus 图标
+import { Menu as IconMenu, Location, User, ArrowDown } from '@element-plus/icons-vue'
+import { ref, onMounted } from 'vue'
+import { useRouter } from 'vue-router'
+import { ElMessage, ElMessageBox } from 'element-plus'
 
-// 这里可以添加布局相关的逻辑，例如处理菜单折叠等
+const router = useRouter()
+const adminInfo = ref({})
+
+// 获取管理员信息
+onMounted(() => {
+  const storedInfo = localStorage.getItem('admin-info')
+  if (storedInfo) {
+    try {
+      adminInfo.value = JSON.parse(storedInfo)
+    } catch (e) {
+      console.error('解析管理员信息失败:', e)
+    }
+  }
+})
+
+// 处理下拉菜单命令
+const handleCommand = (command) => {
+  if (command === 'logout') {
+    handleLogout()
+  } else if (command === 'profile') {
+    ElMessage.info('个人信息功能开发中...')
+  }
+}
+
+// 处理退出登录
+const handleLogout = () => {
+  ElMessageBox.confirm('确定要退出登录吗?', '提示', {
+    confirmButtonText: '确定',
+    cancelButtonText: '取消',
+    type: 'warning'
+  }).then(() => {
+    // 清除本地存储的token和管理员信息
+    localStorage.removeItem('admin-token')
+    localStorage.removeItem('admin-info')
+
+    // 显示成功消息
+    ElMessage.success('退出登录成功')
+
+    // 跳转到登录页
+    router.push('/login')
+  }).catch(() => {
+    // 用户取消退出登录，不做任何操作
+  })
+}
 </script>
 
 <style scoped>
@@ -106,5 +167,25 @@
   padding: 20px; /* 主内容区内边距 */
   height: calc(100vh - 60px); /* 计算主内容区高度 */
   overflow-y: auto; /* 内容超出时显示垂直滚动条 */
+}
+
+.breadcrumb {
+  font-size: 18px;
+  font-weight: bold;
+}
+
+.user-info {
+  display: flex;
+  align-items: center;
+}
+
+.el-dropdown-link {
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+}
+
+.el-dropdown-link .el-avatar {
+  margin-right: 8px;
 }
 </style>

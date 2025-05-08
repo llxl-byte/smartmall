@@ -12,9 +12,10 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.List;
 import java.util.UUID;
 
-@CrossOrigin(origins = "*", allowCredentials = "false")
+@CrossOrigin(origins = {"http://localhost:5173", "http://127.0.0.1:5173"}, allowCredentials = "false")
 @RestController
 public class MallUserController {
     @Autowired
@@ -66,7 +67,7 @@ public class MallUserController {
             String originalFilename = file.getOriginalFilename();
             String extension = originalFilename.substring(originalFilename.lastIndexOf("."));
             String newFilename = UUID.randomUUID().toString() + extension;
-            
+
             // 保存文件
             File destFile = new File(dir, newFilename);
             file.transferTo(destFile);
@@ -76,7 +77,7 @@ public class MallUserController {
 
             // 更新用户头像URL
             boolean updated = mallUserService.updateUserAvatar(userId, avatarUrl);
-            
+
             if (updated) {
                 return new Result(true, "头像上传成功", avatarUrl);
             } else {
@@ -100,4 +101,6 @@ public class MallUserController {
             return new Result(false, "更新失败：" + e.getMessage());
         }
     }
+
+    // 用户管理相关接口已移至 AdminController 类中
 }

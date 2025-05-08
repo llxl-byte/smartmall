@@ -94,13 +94,28 @@ onMounted(() => {
 // 获取用户列表
 const fetchUsers = async () => {
   try {
-    const response = await request.get('/api/users')
-    if (response.data.code === 200) {
-      users.value = response.data.data
+    // 直接使用fetch发送请求，绕过axios的拦截器
+    const response = await fetch('http://localhost:8083/admin/users')
+    const data = await response.json()
+    console.log('直接获取的用户列表数据:', data)
+
+    if (data && data.success && Array.isArray(data.data)) {
+      // 将后端返回的用户数据转换为前端需要的格式
+      users.value = data.data.map(user => ({
+        id: user.id,
+        username: user.username,
+        email: user.email || '未设置',
+        phone: user.phone || '未设置',
+        status: user.status === 1 ? 'enabled' : 'disabled',
+        registerTime: user.createTime ? new Date(user.createTime).toLocaleString() : '未知',
+        lastLogin: user.lastLoginTime ? new Date(user.lastLoginTime).toLocaleString() : '未知'
+      }))
+      console.log('处理后的用户数据:', users.value)
     } else {
-      ElMessage.error('获取用户列表失败: ' + response.data.msg)
+      ElMessage.error('获取用户列表失败: ' + (data ? data.message : '未知错误'))
     }
   } catch (error) {
+    console.error('获取用户列表错误:', error);
     ElMessage.error('获取用户列表失败: ' + error.message)
   }
 }
@@ -123,7 +138,7 @@ const handleViewDetail = (row) => {
 
 // 切换用户状态（启用/禁用）
 const handleToggleStatus = (row) => {
-  const newStatus = row.status === 'enabled' ? 'disabled' : 'enabled'
+  const isActive = row.status === 'enabled' ? false : true
   const actionText = row.status === 'enabled' ? '禁用' : '启用'
   ElMessageBox.confirm(`确定要${actionText}用户 "${row.username}" 吗?`, '提示', {
     confirmButtonText: '确定',
@@ -131,12 +146,12 @@ const handleToggleStatus = (row) => {
     type: 'warning'
   }).then(async () => {
     try {
-      const response = await request.put(`/api/users/${row.id}/status`, { status: newStatus })
-      if (response.data.code === 200) {
+      const response = await request.post(`/admin/users/${row.id}/status`, { isActive: isActive })
+      if (response.data.success) {
         ElMessage.success(`${actionText}成功`)
         fetchUsers() // 重新获取列表
       } else {
-        ElMessage.error(`${actionText}失败: ` + response.data.msg)
+        ElMessage.error(`${actionText}失败: ` + response.data.message)
       }
     } catch (error) {
       ElMessage.error(`${actionText}失败: ` + error.message)
