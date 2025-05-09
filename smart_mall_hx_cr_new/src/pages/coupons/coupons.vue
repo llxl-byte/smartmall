@@ -12,7 +12,7 @@
 				暂无可用优惠券
 			</view>
 		</view>
-		
+
 		<!-- 不使用优惠券的选项 -->
 		<view class="no-coupon-option" @click="selectNoCoupon">
 			<text>不使用优惠券</text>
@@ -26,6 +26,8 @@
 </template>
 
 <script>
+import { API_BASE_URL } from '@/config.js';
+
 export default {
 	data() {
 		return {
@@ -43,14 +45,14 @@ export default {
 			this.selectedCouponId = passedData.selectedId || null;
 			this.totalAmount = passedData.totalAmount || 0;
 			// 获取后建议清除，避免下次误用，除非有特殊需求
-			// uni.removeStorageSync('couponSelectionData'); 
+			// uni.removeStorageSync('couponSelectionData');
 		} else {
-			console.warn("未能从Storage获取优惠券数据，列表可能为空");
-			// 兜底：如果获取不到传递的数据，可以尝试调用接口重新获取 (如果实现了 loadAvailableCoupons)
-			// this.loadAvailableCoupons();
+			console.warn("未能从Storage获取优惠券数据，将加载用户优惠券");
+			// 如果没有传递数据，则加载用户的所有优惠券
+			this.loadUserCoupons();
 		}
 
-		// --- 移除模拟数据 --- 
+		// --- 移除模拟数据 ---
 		// console.log("优惠券选择页加载，接收到的 options:", options);
 		// this.coupons = [
 		// 	 { id: 1, name: '满100减10元', discountAmount: 10.00, threshold: 100 },
@@ -60,10 +62,54 @@ export default {
 		// this.selectedCouponId = options.selectedId ? parseInt(options.selectedId) : null;
 	},
 	methods: {
-		// // 如果需要单独加载优惠券
-		// loadAvailableCoupons() {
-		// 	 // 调用后端接口获取可用优惠券
-		// },
+		// 加载用户的优惠券
+		loadUserCoupons() {
+			// 获取用户信息
+			const userInfo = uni.getStorageSync('userInfo');
+			if (!userInfo || !userInfo.id) {
+				console.warn('用户未登录或用户ID不存在');
+				return;
+			}
+
+			// 显示加载中
+			uni.showLoading({
+				title: '加载中...'
+			});
+
+			// 调用后端接口获取用户的优惠券
+			uni.request({
+				url: `${API_BASE_URL}/api/coupons/user/${userInfo.id}`,
+				method: 'GET',
+				success: (res) => {
+					if (res.data && res.data.success) {
+						this.coupons = res.data.data || [];
+						console.log('获取到用户优惠券:', this.coupons);
+					} else {
+						console.warn('获取用户优惠券失败:', res.data);
+						// 如果获取失败，使用模拟数据
+						this.useMockData();
+					}
+				},
+				fail: (err) => {
+					console.error('请求用户优惠券失败:', err);
+					// 如果请求失败，使用模拟数据
+					this.useMockData();
+				},
+				complete: () => {
+					uni.hideLoading();
+				}
+			});
+		},
+
+		// 使用模拟数据
+		useMockData() {
+			console.log('使用模拟优惠券数据');
+			this.coupons = [
+				{ id: 1, name: '满100减10元', discountAmount: 10.00, threshold: 100 },
+				{ id: 2, name: '满50减5元', discountAmount: 5.00, threshold: 50 },
+				{ id: 3, name: '无门槛减2元', discountAmount: 2.00, threshold: 0 },
+			];
+		},
 
 		selectCoupon(coupon) {
 			console.log('选择了优惠券:', coupon);
@@ -80,7 +126,7 @@ export default {
 			// 返回上个页面
 			uni.navigateBack();
 		},
-		
+
 		// // 如果需要确定按钮
 		// confirmSelection() {
 		// 	 let selected = null;

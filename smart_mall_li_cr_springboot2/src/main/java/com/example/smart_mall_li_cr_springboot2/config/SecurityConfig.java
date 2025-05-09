@@ -35,6 +35,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers(
                     "/mallUserLogin",
                     "/mallUserRegister",
+                    "/updateUserInfo",
+                    "/uploadAvatar",
                     "/admin/login", // 管理员登录接口
                     "/admin/users/**", // 用户管理接口（临时允许匿名访问，用于测试）
                     "/admin/users/{userId}/status", // 用户状态更新接口（临时允许匿名访问，用于测试）
@@ -50,7 +52,33 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                     "/doc.html",
                     "/webjars/**",
                     "/swagger-resources/**",
-                    "/v2/api-docs"
+                    "/v2/api-docs",
+                    "/behavior/count",      // 用户行为数量接口
+                    "/behavior/items",      // 用户行为商品接口
+                    "/behavior/record",     // 记录用户行为接口
+                    "/behavior/user",       // 用户行为列表接口
+                    "/behavior/item",       // 商品行为列表接口
+                    "/order/count",         // 订单数量接口
+                    "/coupon/count",        // 优惠券数量接口
+                    "/address/list",        // 收货地址列表接口
+                    "/address/add",         // 添加收货地址接口
+                    "/address/update",      // 更新收货地址接口
+                    "/address/delete",      // 删除收货地址接口
+                    "/orders",              // 订单列表接口
+                    "/addMallOrder",        // 添加订单接口
+                    "/createFullOrder",     // 创建完整订单接口
+                    "/chat/tags",           // 聊天标签接口
+                    "/chat/history/**",     // 聊天历史接口
+                    "/chat/faqs",           // 常见问题接口
+                    "/chat/send",           // 发送聊天消息接口
+                    "/selectByUserId",      // 购物车查询接口
+                    "/addCart",             // 添加购物车接口
+                    "/updateCart",          // 更新购物车接口
+                    "/deleteCart",          // 删除购物车接口
+                    "/batchUpdateCartSelected", // 批量更新购物车选中状态接口
+                    "/api/coupons/**",      // 优惠券相关接口
+                    "/recommend/**",        // 推荐接口
+                    "/comment/**"           // 评论接口
                 ).permitAll()
 
                 // 其他所有请求都需要认证

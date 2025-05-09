@@ -20,6 +20,14 @@ public class CartServiceImpl implements CartService {
         cart.setUserId(cartAddParam.getUserId());
         cart.setItemId(cartAddParam.getItemId());
         cart.setQuantity(cartAddParam.getQuantity());
+
+        // 设置选中状态，默认为选中状态(1)
+        if (cartAddParam.getSelected() != null) {
+            cart.setSelected(cartAddParam.getSelected());
+        } else {
+            cart.setSelected(1); // 默认选中
+        }
+
         int insertRows = cartMapper.insertSelective(cart);//这里参数类型是cart record，因此需要将addCartParam参数构造成cart实体类
         if(insertRows>0){
             return true;
@@ -46,7 +54,17 @@ public class CartServiceImpl implements CartService {
     public boolean updateCart(UpdateCartParam updateCartParam) {
         Cart cart = new Cart();
         cart.setId(updateCartParam.getId());
-        cart.setQuantity(updateCartParam.getQuantity());
+
+        // 设置数量（如果有）
+        if (updateCartParam.getQuantity() != null) {
+            cart.setQuantity(updateCartParam.getQuantity());
+        }
+
+        // 设置选中状态（如果有）
+        if (updateCartParam.getSelected() != null) {
+            cart.setSelected(updateCartParam.getSelected());
+        }
+
         int updateRows = cartMapper.updateByPrimaryKeySelective(cart);
         if(updateRows>0){
             return true;

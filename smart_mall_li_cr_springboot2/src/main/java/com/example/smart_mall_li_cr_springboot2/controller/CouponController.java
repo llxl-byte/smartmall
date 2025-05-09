@@ -7,12 +7,12 @@ import com.example.smart_mall_li_cr_springboot2.service.CouponService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
-import java.math.BigDecimal;
-import java.util.ArrayList;
+
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/coupons") // 统一的 API 路径前缀
+@RequestMapping("/api/coupons")
+@CrossOrigin
 public class CouponController {
 
     // 注入 Service
@@ -53,7 +53,7 @@ public class CouponController {
         coupon2.setDiscountAmount(new BigDecimal("2.00"));
         coupon2.setThreshold(new BigDecimal("0.00"));
         coupon2.setDescription("全场通用，无门槛");
-        
+
         // 模拟根据总金额筛选
         if (requestDTO.getTotalAmount().compareTo(coupon1.getThreshold()) >= 0) {
             mockCoupons.add(coupon1);
@@ -68,6 +68,43 @@ public class CouponController {
         return Result.success(availableCoupons); // 实际应返回 Service 查询结果
     }
 
-    // 未来可以添加其他优惠券相关的接口，比如领取优惠券、查询用户所有优惠券等
+    /**
+     * 获取用户的所有优惠券
+     * @param userId 用户ID
+     * @return 用户的优惠券列表
+     */
+    @GetMapping("/user/{userId}")
+    public Result<List<CouponDTO>> getUserCoupons(@PathVariable("userId") Long userId) {
+        System.out.println("获取用户优惠券，用户ID: " + userId);
+        try {
+            // 调用Service层获取用户的优惠券
+            List<CouponDTO> coupons = couponService.getUserCoupons(userId);
+            return Result.success(coupons, "获取用户优惠券成功");
+        } catch (Exception e) {
+            System.err.println("获取用户优惠券失败: " + e.getMessage());
+            e.printStackTrace();
+            return Result.error("获取用户优惠券失败");
+        }
+    }
 
-} 
+    // 未来可以添加其他优惠券相关的接口，比如领取优惠券等
+
+    /**
+     * 获取用户优惠券数量
+     * @param userId 用户ID
+     * @return 优惠券数量
+     */
+    @GetMapping("/count")
+    public Result<Integer> getCouponCount(@RequestParam("userId") Integer userId) {
+        System.out.println("获取用户优惠券数量，用户ID: " + userId);
+        try {
+            // 调用Service层获取优惠券数量
+            int count = couponService.countUserCoupons(userId);
+            return Result.success(count);
+        } catch (Exception e) {
+            System.err.println("获取用户优惠券数量失败: " + e.getMessage());
+            e.printStackTrace();
+            return Result.error("获取优惠券数量失败");
+        }
+    }
+}

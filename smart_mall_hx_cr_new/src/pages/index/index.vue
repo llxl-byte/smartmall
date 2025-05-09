@@ -34,7 +34,7 @@
 		</view>
 
 		<!-- 推荐商品 -->
-		<!-- <view class="recommend-section">
+		<view class="recommend-section">
 			<view class="section-header">
 				<text class="section-title">为您推荐</text>
 			</view>
@@ -53,7 +53,7 @@
 			<view class="no-data-placeholder" v-else>
 				<text>暂无推荐商品</text>
 			</view>
-		</view> -->
+		</view>
 
 		<!-- 热销商品 -->
 		<view class="hot-section">
@@ -182,12 +182,66 @@ export default {
 
 				this.loadingMore = true;
 
+				// 准备模拟数据，以防接口调用失败
+				const mockItems = [
+					{
+						id: 7,
+						name: '商品 1',
+						price: 6999,
+						mainImage: '/static/landscape.jpg',
+						sales: 200
+					},
+					{
+						id: 8,
+						name: '商品 2',
+						price: 7999,
+						mainImage: '/static/scenery.jpg',
+						sales: 150
+					},
+					{
+						id: 9,
+						name: '商品 3',
+						price: 8999,
+						mainImage: '/static/landscape.jpg',
+						sales: 100
+					},
+					{
+						id: 10,
+						name: '商品 4',
+						price: 9999,
+						mainImage: '/static/scenery.jpg',
+						sales: 50
+					}
+				];
+
+				// 检查登录状态
+				const userInfo = uni.getStorageSync('userInfo');
+				const token = localStorage.getItem('jwtToken');
+
+				// 如果没有登录或没有令牌，使用模拟数据
+				if (!userInfo || !token) {
+					console.log('未登录，使用模拟商品列表数据');
+					this.loadingMore = false;
+					if (replace) {
+						this.itemList = mockItems;
+					} else if (this.page === 1) {
+						this.itemList = mockItems;
+					} else {
+						this.hasMore = false;
+					}
+					uni.stopPullDownRefresh();
+					return;
+				}
+
 				// 这里应该根据分类ID和页码加载商品
 				// 由于后端可能没有分页接口，这里简化处理
 				let url = `${API_BASE_URL}/selectByCategoryId?categoryId=${this.currentCategory || 0}`;
 
 				uni.request({
 					url: url,
+					header: {
+						'Authorization': `Bearer ${token}`
+					},
 					success: (res) => {
 						this.loadingMore = false;
 
@@ -203,6 +257,15 @@ export default {
 									this.hasMore = false;
 								}
 							}
+						} else {
+							console.log('未获取到商品列表数据，使用模拟数据');
+							if (replace) {
+								this.itemList = mockItems;
+							} else if (this.page === 1) {
+								this.itemList = mockItems;
+							} else {
+								this.hasMore = false;
+							}
 						}
 
 						// 停止下拉刷新
@@ -211,11 +274,18 @@ export default {
 					fail: (err) => {
 						console.error('获取商品列表失败', err);
 						this.loadingMore = false;
+
+						// 使用模拟数据
+						console.log('使用模拟商品列表数据');
+						if (replace) {
+							this.itemList = mockItems;
+						} else if (this.page === 1) {
+							this.itemList = mockItems;
+						} else {
+							this.hasMore = false;
+						}
+
 						uni.stopPullDownRefresh();
-						uni.showToast({
-							title: '获取商品列表失败',
-							icon: 'none'
-						});
 					}
 				});
 			},
@@ -241,87 +311,151 @@ export default {
 
 			// 跳转到搜索页
 			goToSearch() {
-				uni.showToast({
-					title: '搜索功能待开发',
-					icon: 'none'
+				uni.navigateTo({
+					url: '/pages/search/search'
 				});
 			},
 
 			// 加载热销商品
 			loadHotItems() {
+				// 先检查是否有登录信息
+				const userInfo = uni.getStorageSync('userInfo');
+				const token = localStorage.getItem('jwtToken');
+
+				// 准备模拟数据，以防接口调用失败
+				const mockHotItems = [
+					{
+						id: 1,
+						name: '热销商品 1',
+						price: 999,
+						mainImage: '/static/landscape.jpg',
+						sales: 1000
+					},
+					{
+						id: 2,
+						name: '热销商品 2',
+						price: 1999,
+						mainImage: '/static/scenery.jpg',
+						sales: 800
+					},
+					{
+						id: 3,
+						name: '热销商品 3',
+						price: 2999,
+						mainImage: '/static/landscape.jpg',
+						sales: 600
+					}
+				];
+
+				// 如果没有登录或没有令牌，使用模拟数据
+				if (!userInfo || !token) {
+					console.log('未登录，使用模拟热销商品数据');
+					this.hotItems = mockHotItems;
+					return;
+				}
+
+				// 如果已登录，尝试调用接口
 				uni.request({
 					url: `${API_BASE_URL}/recommend/hot?limit=10`,
+					header: {
+						'Authorization': `Bearer ${token}`
+					},
 					success: (res) => {
 						if (res.data && res.data.data) {
 							this.hotItems = res.data.data;
 						} else {
-							console.log('未获取到热销商品数据');
+							console.log('未获取到热销商品数据，使用模拟数据');
+							this.hotItems = mockHotItems;
 						}
 					},
 					fail: (err) => {
 						console.error('获取热销商品失败', err);
-						uni.showToast({
-							title: '获取热销商品失败',
-							icon: 'none'
-						});
+						console.log('使用模拟热销商品数据');
+						this.hotItems = mockHotItems;
 					}
 				});
 			},
 
 			// 加载推荐商品
 			loadRecommendItems() {
-				// 如果用户未登录，直接加载热销商品
-				if (!this.userInfo) {
-					uni.request({
-						url: `${API_BASE_URL}/recommend/hot?limit=10`,
-						success: (res) => {
-							if (res.data && res.data.data) {
-								this.recommendItems = res.data.data;
-							} else {
-								console.log('未获取到推荐商品数据，使用默认数据');
-							}
-						},
-						fail: (err) => {
-							console.error('获取推荐商品失败', err);
-							uni.showToast({
-								title: '获取推荐商品失败',
-								icon: 'none'
-							});
-						}
-					});
+				// 准备模拟数据，以防接口调用失败
+				const mockRecommendItems = [
+					{
+						id: 4,
+						name: '推荐商品 1',
+						price: 3999,
+						mainImage: '/static/scenery.jpg',
+						sales: 500
+					},
+					{
+						id: 5,
+						name: '推荐商品 2',
+						price: 4999,
+						mainImage: '/static/landscape.jpg',
+						sales: 400
+					},
+					{
+						id: 6,
+						name: '推荐商品 3',
+						price: 5999,
+						mainImage: '/static/scenery.jpg',
+						sales: 300
+					}
+				];
+
+				// 检查登录状态
+				const userInfo = uni.getStorageSync('userInfo');
+				const token = localStorage.getItem('jwtToken');
+
+				// 如果用户未登录或没有令牌，使用模拟数据
+				if (!userInfo || !token) {
+					console.log('未登录，使用模拟推荐商品数据');
+					this.recommendItems = mockRecommendItems;
 					return;
 				}
 
-				// 如果用户已登录，加载个性化推荐
+				// 如果用户已登录，尝试加载个性化推荐
 				uni.request({
-					url: `${API_BASE_URL}/recommend/user/${this.userInfo.id}?limit=10`,
+					url: `${API_BASE_URL}/recommend/user/${userInfo.id}?limit=10`,
+					header: {
+						'Authorization': `Bearer ${token}`
+					},
 					success: (res) => {
 						if (res.data && res.data.data) {
 							this.recommendItems = res.data.data;
 						} else {
-							console.log('未获取到个性化推荐数据');
+							console.log('未获取到个性化推荐数据，尝试热销推荐');
+							// 尝试热销推荐
+							this.tryHotRecommend(token, mockRecommendItems);
 						}
 					},
 					fail: (err) => {
 						console.error('获取个性化推荐失败', err);
 						// 如果个性化推荐失败，回退到热销推荐
-						uni.request({
-							url: `${API_BASE_URL}/recommend/hot?limit=10`,
-							success: (res) => {
-								if (res.data && res.data.data) {
-									this.recommendItems = res.data.data;
-								} else {
-									console.log('未获取到热销推荐数据');
-								}
-							},
-							fail: (err2) => {
-								console.error('获取热销推荐失败', err2);
-								uni.showToast({
-									title: '获取推荐商品失败',
-									icon: 'none'
-								});
-							}
-						});
+						this.tryHotRecommend(token, mockRecommendItems);
+					}
+				});
+			},
+
+			// 尝试热销推荐
+			tryHotRecommend(token, fallbackData) {
+				uni.request({
+					url: `${API_BASE_URL}/recommend/hot?limit=10`,
+					header: {
+						'Authorization': `Bearer ${token}`
+					},
+					success: (res) => {
+						if (res.data && res.data.data) {
+							this.recommendItems = res.data.data;
+						} else {
+							console.log('未获取到热销推荐数据，使用模拟数据');
+							this.recommendItems = fallbackData;
+						}
+					},
+					fail: (err) => {
+						console.error('获取热销推荐失败', err);
+						console.log('使用模拟推荐数据');
+						this.recommendItems = fallbackData;
 					}
 				});
 			}

@@ -1,6 +1,7 @@
 package com.example.smart_mall_li_cr_springboot2.controller;
 
 import com.example.smart_mall_li_cr_springboot2.pojo.ChatMessage;
+import com.example.smart_mall_li_cr_springboot2.pojo.ChatTag;
 import com.example.smart_mall_li_cr_springboot2.pojo.Faq;
 import com.example.smart_mall_li_cr_springboot2.service.ChatService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,10 +18,10 @@ import java.util.Map;
 @RequestMapping("/chat")
 @CrossOrigin
 public class ChatController {
-    
+
     @Autowired
     private ChatService chatService;
-    
+
     /**
      * 发送消息并获取回复
      * @param userId 用户ID
@@ -31,7 +32,7 @@ public class ChatController {
     public Map<String, Object> sendMessage(
             @RequestParam("userId") Integer userId,
             @RequestParam("content") String content) {
-        
+
         Map<String, Object> result = new HashMap<>();
         try {
             String reply = chatService.sendMessage(userId, content);
@@ -43,7 +44,7 @@ public class ChatController {
         }
         return result;
     }
-    
+
     /**
      * 获取聊天历史记录
      * @param userId 用户ID
@@ -62,7 +63,7 @@ public class ChatController {
         }
         return result;
     }
-    
+
     /**
      * 获取所有常见问题
      * @return 常见问题列表
@@ -77,6 +78,24 @@ public class ChatController {
         } catch (Exception e) {
             result.put("success", false);
             result.put("message", "获取常见问题失败：" + e.getMessage());
+        }
+        return result;
+    }
+
+    /**
+     * 获取所有聊天标签
+     * @return 聊天标签列表
+     */
+    @GetMapping("/tags")
+    public Map<String, Object> getAllTags() {
+        Map<String, Object> result = new HashMap<>();
+        try {
+            List<ChatTag> tags = chatService.getAllTags();
+            result.put("success", true);
+            result.put("data", tags);
+        } catch (Exception e) {
+            result.put("success", false);
+            result.put("message", "获取聊天标签失败：" + e.getMessage());
         }
         return result;
     }

@@ -53,9 +53,19 @@ methods: {
 		//1，得到用户输入的用户名和密码
 		console.log(this.username)
 		//2,把数据发给服务器
-		let serverUrl="http://127.0.0.1:8083/mallUserRegister?password="+encodeURIComponent(this.password)+"&username="+encodeURIComponent(this.username)
+		let serverUrl="http://127.0.0.1:8083/mallUserRegister"
 		uni.request({
-			url:serverUrl,
+			url: serverUrl,
+			method: 'POST',
+			data: {
+				username: this.username,
+				password: this.password,
+				nickname: this.username, // 默认使用用户名作为昵称
+				phone: '' // 空手机号
+			},
+			header: {
+				'content-type': 'application/json'
+			},
 			fail: (err) => {
 				console.log(err)
 				//debugger

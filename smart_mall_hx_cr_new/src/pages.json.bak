@@ -59,7 +59,8 @@
 			"style": {
 				"navigationBarTitleText": "订单成功"
 			}
-		},
+		}
+,
 		{
 			"path": "pages/orders/orders",
 			"style": {
@@ -116,21 +117,31 @@
 			}
 		},
 		{
-			"path": "pages/login/qq-login",
-			"style": {
-				"navigationBarTitleText": ""
+			"path" : "pages/login/qq-login/qq-login",
+			"style" :
+			{
+				"navigationBarTitleText" : ""
 			}
 		},
 		{
-			"path": "pages/favorites/favorites",
-			"style": {
-				"navigationBarTitleText": "我的收藏"
+			"path" : "pages/login/qq-login",
+			"style" :
+			{
+				"navigationBarTitleText" : ""
 			}
 		},
 		{
-			"path": "pages/history/history",
-			"style": {
-				"navigationBarTitleText": "浏览历史"
+			"path" : "pages/favorites/favorites",
+			"style" :
+			{
+				"navigationBarTitleText" : "我的收藏"
+			}
+		},
+		{
+			"path" : "pages/history/history",
+			"style" :
+			{
+				"navigationBarTitleText" : "浏览历史"
 			}
 		}
 	],

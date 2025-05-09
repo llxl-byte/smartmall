@@ -40,4 +40,11 @@ public interface MallOrderService {
      * @return 是否更新成功
      */
     boolean updateOrderStatus(Long orderId, String status, String remarks);
+
+    /**
+     * 统计用户的订单数量
+     * @param userId 用户ID
+     * @return 订单数量
+     */
+    int countOrdersByUserId(Integer userId);
 }

@@ -17,7 +17,25 @@ public class MallUserServiceImpl implements MallUserService {
 
     @Override
     public boolean mallUserRegister(MallUserRegisterParam mallUserRegisterParam) {
-        return mallUserMapper.mallUserRegister(mallUserRegisterParam);
+        try {
+            // 检查用户名是否已存在
+            MallUser existingUser = mallUserMapper.selectByUsername(mallUserRegisterParam.getUsername());
+            if (existingUser != null) {
+                return false; // 用户名已存在
+            }
+
+            // 检查手机号是否已存在（如果提供了手机号）
+            if (mallUserRegisterParam.getPhone() != null && !mallUserRegisterParam.getPhone().isEmpty()) {
+                // 这里需要添加一个根据手机号查询用户的方法
+                // 暂时可以跳过这个检查，或者在数据库层面处理
+            }
+
+            return mallUserMapper.mallUserRegister(mallUserRegisterParam);
+        } catch (Exception e) {
+            System.err.println("注册失败: " + e.getMessage());
+            e.printStackTrace();
+            return false;
+        }
     }
 
     @Override

@@ -193,7 +193,7 @@ export default {
             toggleSelectAll() {
                 this.isAllSelected = !this.isAllSelected;
                 const selectedStatus = this.isAllSelected ? 1 : 0;
-                
+
                 // 批量更新选中状态
                 const updatePromises = this.cartItems.map(item => {
                     item.selected = this.isAllSelected;
@@ -268,15 +268,15 @@ export default {
             // 更新购物车商品数量
             updateCartItemQuantity(item) {
                 console.log('更新购物车数据：', {id: item.id, quantity: item.quantity});
-                
+
                 uni.showLoading({
                     title: '更新中...'
                 });
-                
+
                 // 确保id和quantity都是整数类型
                 const id = parseInt(item.id);
                 const quantity = parseInt(item.quantity);
-                
+
                 if (isNaN(id) || isNaN(quantity)) {
                     console.error('无效的ID或数量');
                     uni.showToast({
@@ -286,12 +286,12 @@ export default {
                     uni.hideLoading();
                     return;
                 }
-                
+
                 uni.request({
                     url: `${API_BASE_URL}/updateCart`,
                     method: 'POST',
                     header: {
-                        'content-type': 'application/x-www-form-urlencoded' // 改用表单格式
+                        'content-type': 'application/json' // 使用JSON格式
                     },
                     data: {
                         id: id,
@@ -299,15 +299,23 @@ export default {
                     },
                     success: (res) => {
                         console.log('更新购物车响应：', res);
-                        if (res.statusCode === 200 && res.data === true) {
-                            uni.showToast({
-                                title: '更新成功',
-                                icon: 'success',
-                                duration: 1500
-                            });
+                        if (res.statusCode === 200) {
+                            // 检查返回的Result对象
+                            if (res.data && res.data.success) {
+                                uni.showToast({
+                                    title: res.data.message || '更新成功',
+                                    icon: 'success',
+                                    duration: 1500
+                                });
+                            } else {
+                                uni.showToast({
+                                    title: res.data && res.data.message ? res.data.message : '更新失败',
+                                    icon: 'none'
+                                });
+                            }
                         } else {
                             uni.showToast({
-                                title: `更新失败: ${res.statusCode}`,
+                                title: `服务器错误: ${res.statusCode}`,
                                 icon: 'none'
                             });
                         }
@@ -328,11 +336,11 @@ export default {
             // 更新购物车商品数量的替代方法
             updateCartItemQuantityAlternative(item) {
                 console.log('使用替代方法更新购物车数据：', {id: item.id, quantity: item.quantity});
-                
+
                 uni.showLoading({
                     title: '更新中...'
                 });
-                
+
                 // 尝试使用另一个可能的接口端点
                 uni.request({
                     url: `${API_BASE_URL}/cart/update`,  // 尝试不同的API路径
@@ -362,7 +370,7 @@ export default {
                             title: '更新购物车数量失败',
                             icon: 'none'
                         });
-                        
+
                         // 失败时尝试直接修改本地数据，不与后端同步
                         // 注意：这只是临时解决方案
                         uni.showModal({
@@ -397,7 +405,7 @@ export default {
                             uni.request({
                                 url: `${API_BASE_URL}/deleteCart?id=${item.id}`,
                                 success: (res) => {
-                                    if (res.data) {
+                                    if (res.data && res.data.success) {
                                         // 从列表中移除
                                         const index = this.cartItems.findIndex(i => i.id === item.id);
                                         if (index !== -1) {
@@ -405,12 +413,12 @@ export default {
                                         }
                                         this.checkSelectAll();
                                         uni.showToast({
-                                            title: '删除成功',
+                                            title: res.data.message || '删除成功',
                                             icon: 'success'
                                         });
                                     } else {
                                         uni.showToast({
-                                            title: '删除失败',
+                                            title: res.data && res.data.message ? res.data.message : '删除失败',
                                             icon: 'none'
                                         });
                                     }
@@ -440,7 +448,7 @@ export default {
 
                 // 获取选中的商品
                 const selectedItems = this.cartItems.filter(item => item.selected);
-                
+
                 // 将选中的商品信息存储到本地，用于订单确认页面使用
                 uni.setStorageSync('checkoutItems', selectedItems);
 

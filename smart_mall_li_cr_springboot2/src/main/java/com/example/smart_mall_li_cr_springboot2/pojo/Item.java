@@ -1,60 +1,63 @@
 package com.example.smart_mall_li_cr_springboot2.pojo;
 
+import java.io.Serializable;
 import java.math.BigDecimal;
 import java.util.Date;
 
 /**
- * 
+ *
  * @TableName item
  */
-public class Item {
+public class Item implements Serializable {
+
+    private static final long serialVersionUID = 1L;
     /**
-     * 
+     *
      */
     private Integer id;
 
     /**
-     * 
+     *
      */
     private String name;
 
     /**
-     * 
+     *
      */
     private BigDecimal price;
 
     /**
-     * 
+     *
      */
     private BigDecimal originalPrice;
 
     /**
-     * 
+     *
      */
     private String description;
 
     /**
-     * 
+     *
      */
     private String detail;
 
     /**
-     * 
+     *
      */
     private Integer categoryId;
 
     /**
-     * 
+     *
      */
     private Integer stock;
 
     /**
-     * 
+     *
      */
     private Integer sales;
 
     /**
-     * 
+     *
      */
     private String mainImage;
 
@@ -69,150 +72,150 @@ public class Item {
     private Integer isOnSale;
 
     /**
-     * 
+     *
      */
     private Date createTime;
 
     /**
-     * 
+     *
      */
     private Date updateTime;
 
     /**
-     * 
+     *
      */
     public Integer getId() {
         return id;
     }
 
     /**
-     * 
+     *
      */
     public void setId(Integer id) {
         this.id = id;
     }
 
     /**
-     * 
+     *
      */
     public String getName() {
         return name;
     }
 
     /**
-     * 
+     *
      */
     public void setName(String name) {
         this.name = name;
     }
 
     /**
-     * 
+     *
      */
     public BigDecimal getPrice() {
         return price;
     }
 
     /**
-     * 
+     *
      */
     public void setPrice(BigDecimal price) {
         this.price = price;
     }
 
     /**
-     * 
+     *
      */
     public BigDecimal getOriginalPrice() {
         return originalPrice;
     }
 
     /**
-     * 
+     *
      */
     public void setOriginalPrice(BigDecimal originalPrice) {
         this.originalPrice = originalPrice;
     }
 
     /**
-     * 
+     *
      */
     public String getDescription() {
         return description;
     }
 
     /**
-     * 
+     *
      */
     public void setDescription(String description) {
         this.description = description;
     }
 
     /**
-     * 
+     *
      */
     public String getDetail() {
         return detail;
     }
 
     /**
-     * 
+     *
      */
     public void setDetail(String detail) {
         this.detail = detail;
     }
 
     /**
-     * 
+     *
      */
     public Integer getCategoryId() {
         return categoryId;
     }
 
     /**
-     * 
+     *
      */
     public void setCategoryId(Integer categoryId) {
         this.categoryId = categoryId;
     }
 
     /**
-     * 
+     *
      */
     public Integer getStock() {
         return stock;
     }
 
     /**
-     * 
+     *
      */
     public void setStock(Integer stock) {
         this.stock = stock;
     }
 
     /**
-     * 
+     *
      */
     public Integer getSales() {
         return sales;
     }
 
     /**
-     * 
+     *
      */
     public void setSales(Integer sales) {
         this.sales = sales;
     }
 
     /**
-     * 
+     *
      */
     public String getMainImage() {
         return mainImage;
     }
 
     /**
-     * 
+     *
      */
     public void setMainImage(String mainImage) {
         this.mainImage = mainImage;
@@ -247,28 +250,28 @@ public class Item {
     }
 
     /**
-     * 
+     *
      */
     public Date getCreateTime() {
         return createTime;
     }
 
     /**
-     * 
+     *
      */
     public void setCreateTime(Date createTime) {
         this.createTime = createTime;
     }
 
     /**
-     * 
+     *
      */
     public Date getUpdateTime() {
         return updateTime;
     }
 
     /**
-     * 
+     *
      */
     public void setUpdateTime(Date updateTime) {
         this.updateTime = updateTime;

@@ -50,34 +50,34 @@ public class MallOrderServiceImpl implements MallOrderService {
             System.err.println("订单参数无效: userId为空");
             return false;
         }
-        
+
         try {
             // 打印出完整的请求参数，帮助调试
             System.out.println("接收到订单请求参数: " + addMallOrderParam);
-            
+
             // 获取商品清单 - 可能来自itemsList或购物车
             List<Cart> cartList = null;
-            
+
             // 计算订单总金额
             BigDecimal totalAmount = new BigDecimal("0");
-            
+
             // 如果提供了itemsList，则首先尝试从中获取商品信息
             String itemsListJson = addMallOrderParam.getItemsList();
             boolean hasItemsList = itemsListJson != null && !itemsListJson.isEmpty();
-            
+
             if (hasItemsList) {
                 try {
                     System.out.println("使用前端传递的商品列表: " + itemsListJson);
-                    
+
                     // 使用Jackson解析JSON
                     ObjectMapper objectMapper = new ObjectMapper();
                     cartList = new ArrayList<>();
-                    
+
                     // 简化JSON解析逻辑，统一处理
                     try {
                         // 尝试作为数组解析
                         List<Map<String, Object>> itemsArray;
-                        
+
                         if (itemsListJson.trim().startsWith("[")) {
                             // 是数组格式
                             itemsArray = objectMapper.readValue(itemsListJson, new TypeReference<List<Map<String, Object>>>() {});
@@ -92,21 +92,21 @@ public class MallOrderServiceImpl implements MallOrderService {
                             System.err.println("无法识别的JSON格式，既不是数组也不是对象: " + itemsListJson);
                             itemsArray = new ArrayList<>();
                         }
-                        
+
                         // 统一处理商品项
                         for (Map<String, Object> item : itemsArray) {
                             System.out.println("处理商品项: " + item);
-                            
+
                             Cart cart = new Cart();
                             cart.setUserId(addMallOrderParam.getUserId());
                             cart.setSelected(1); // 默认选中
-                            
+
                             // 处理itemId
                             Object itemIdObj = item.get("itemId");
                             if (itemIdObj == null) {
                                 itemIdObj = item.get("id");
                             }
-                            
+
                             if (itemIdObj != null) {
                                 int itemId;
                                 if (itemIdObj instanceof Integer) {
@@ -124,7 +124,7 @@ public class MallOrderServiceImpl implements MallOrderService {
                                 System.err.println("商品项没有itemId或id字段");
                                 continue; // 跳过这个无效的商品项
                             }
-                            
+
                             // 处理数量
                             int quantity = 1; // 默认数量为1
                             Object quantityObj = item.get("quantity");
@@ -139,7 +139,7 @@ public class MallOrderServiceImpl implements MallOrderService {
                             }
                             cart.setQuantity(quantity);
                             System.out.println("设置商品数量: " + quantity);
-                            
+
                             // 添加到购物车列表
                             cartList.add(cart);
                             System.out.println("成功添加虚拟购物车项");
@@ -148,7 +148,7 @@ public class MallOrderServiceImpl implements MallOrderService {
                         System.err.println("解析商品JSON失败: " + e.getMessage());
                         e.printStackTrace();
                     }
-                    
+
                     // 如果成功创建了虚拟购物车项，直接使用它
                     if (cartList != null && !cartList.isEmpty()) {
                         System.out.println("成功从itemsList创建了虚拟购物车项，共" + cartList.size() + "个商品");
@@ -162,28 +162,28 @@ public class MallOrderServiceImpl implements MallOrderService {
             } else {
                 System.out.println("没有提供商品列表JSON，将尝试从购物车获取商品数据");
             }
-            
+
             // 如果没有从itemsList获取到商品，尝试从购物车获取
             if ((cartList == null || cartList.isEmpty()) && !hasItemsList) {
                 System.out.println("从购物车获取商品数据");
                 cartList = cartService.selectByUserId(addMallOrderParam.getUserId());
-                
+
                 if (cartList != null && !cartList.isEmpty()) {
                     System.out.println("从购物车获取到" + cartList.size() + "个商品项");
                 } else {
                     System.out.println("购物车为空");
                 }
             }
-            
+
             // 仅当从itemsList未获取到商品数据，且购物车数据也为空时，才返回失败
             if (cartList == null || cartList.isEmpty()) {
                 System.err.println("购物车为空且没有可用的itemsList，无法创建订单");
                 return false;
             }
-            
+
             // 计算订单总金额，同时记录需要更新库存的商品和数量
             Map<Long, Integer> itemQuantities = new HashMap<>();
-            
+
             for (Cart cart : cartList) {
                 try {
                     Item item = itemMapper.selectByPrimaryKey(cart.getItemId().longValue());
@@ -191,7 +191,7 @@ public class MallOrderServiceImpl implements MallOrderService {
                         // 商品单价 * 数量
                         BigDecimal itemTotal = item.getPrice().multiply(new BigDecimal(cart.getQuantity()));
                         totalAmount = totalAmount.add(itemTotal);
-                        
+
                         // 记录商品ID和数量，稍后用于更新库存
                         itemQuantities.put(Long.valueOf(item.getId()), cart.getQuantity());
                     } else {
@@ -201,38 +201,38 @@ public class MallOrderServiceImpl implements MallOrderService {
                     System.err.println("计算商品金额时出错: " + e.getMessage());
                 }
             }
-            
+
             // 3. 创建订单
             MallOrder mallOrder = new MallOrder();
             mallOrder.setUserId(addMallOrderParam.getUserId());
             mallOrder.setAddressInfo(addMallOrderParam.getAddressInfo()); // 地址信息JSON字符串
             mallOrder.setOrderNo(generateOrderNo()); // 使用正确的字段名
             mallOrder.setStatus(0); // 设置初始状态为待付款
-            mallOrder.setTotalAmount(totalAmount); 
+            mallOrder.setTotalAmount(totalAmount);
             mallOrder.setActualAmount(totalAmount); // 实际支付金额，使用正确的字段名
             mallOrder.setCreateTime(new Date());
-            
+
             // 打印订单信息，帮助调试
             System.out.println("准备创建订单：" + mallOrder);
-            
+
             // 4. 插入订单记录
             int insertRows = mallOrderMapper.insertSelective(mallOrder);
             if (insertRows > 0) {
                 System.out.println("订单创建成功，ID: " + mallOrder.getId());
-                
+
                 // 5. 如果有订单ID，则更新商品库存和销量
                 Long orderId = mallOrder.getId();
                 if (orderId != null) {
                     // 更新商品库存和销量
                     updateItemStockAndSales(itemQuantities);
-                    
+
                     // 如果需要，还可以处理优惠券核销等操作
-                    
+
                     // 可以在这里处理订单详情
                     System.out.println("开始添加订单详情，订单ID: " + orderId);
                     // 处理订单详情的逻辑可以在这里添加
                 }
-                
+
                 return true;
             } else {
                 System.err.println("订单创建失败，插入0行");
@@ -255,31 +255,31 @@ public class MallOrderServiceImpl implements MallOrderService {
             System.out.println("没有需要更新库存的商品");
             return;
         }
-        
+
         System.out.println("开始更新商品库存和销量...");
-        
+
         for (Map.Entry<Long, Integer> entry : itemQuantities.entrySet()) {
             Long itemId = entry.getKey();
             Integer quantity = entry.getValue();
-            
+
             try {
                 // 获取商品信息
                 Item item = itemMapper.selectByPrimaryKey(itemId);
-                
+
                 if (item != null) {
                     // 更新库存和销量
                     int currentStock = item.getStock();
                     int currentSales = item.getSales() != null ? item.getSales() : 0;
-                    
+
                     // 减少库存
                     item.setStock(Math.max(0, currentStock - quantity));
                     // 增加销量
                     item.setSales(currentSales + quantity);
-                    
+
                     // 更新商品信息
                     itemMapper.updateByPrimaryKeySelective(item);
-                    
-                    System.out.println("商品 " + itemId + " 库存更新为: " + item.getStock() + 
+
+                    System.out.println("商品 " + itemId + " 库存更新为: " + item.getStock() +
                                       ", 销量更新为: " + item.getSales());
                 } else {
                     System.err.println("无法更新商品库存，商品不存在: " + itemId);
@@ -340,5 +340,26 @@ public class MallOrderServiceImpl implements MallOrderService {
 
         int updatedRows = mallOrderMapper.updateByPrimaryKeySelective(order);
         return updatedRows > 0;
+    }
+
+    @Override
+    public int countOrdersByUserId(Integer userId) {
+        if (userId == null) {
+            return 0;
+        }
+
+        try {
+            // 获取用户的所有订单
+            List<MallOrder> orders = mallOrderMapper.selectByUserId(userId);
+            // 返回订单数量
+            return orders != null ? orders.size() : 0;
+
+            // 如果有直接的统计方法，可以使用下面的代码
+            // return mallOrderMapper.countByUserId(userId);
+        } catch (Exception e) {
+            System.err.println("统计用户订单数量失败: " + e.getMessage());
+            e.printStackTrace();
+            return 0;
+        }
     }
 }

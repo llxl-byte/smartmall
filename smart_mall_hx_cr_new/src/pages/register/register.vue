@@ -48,29 +48,38 @@ created() {
 },
 methods: {
 	register(){
-		//重置错误信息
-		this.errorMessage = "";
-		//用户名和密码不能为空
-		if(!this.username || !this.password){
-			this.errorMessage = "用户名和密码不能为空";
+		this.errorMessage = '';
+		// 表单校验
+		if (!this.username) {
+			this.errorMessage = "用户名不能为空";
 			return;
 		}
-		//
-		if(this.password.length < 6){
-			this.errorMessage = "密码长度不能小于6位";
+		if (!this.password) {
+			this.errorMessage = "密码不能为空";
 			return;
 		}
-		//确认密码验证
-		if(this.password !== this.confirmPassword){
+		if (this.password !== this.confirmPassword) {
 			this.errorMessage = "两次输入的密码不一致";
 			return;
 		}
-		//1，得到用户输入的用户名和密码
-		console.log(this.username)
-		//2,把数据发给服务器
-		let serverUrl=`${this.baseUrl}/mallUserRegister?password=${encodeURIComponent(this.password)}&username=${encodeURIComponent(this.username)}`
+
+		// 确保baseUrl使用HTTP协议
+		let apiUrl = this.baseUrl;
+		if (apiUrl.startsWith('https:')) {
+			apiUrl = apiUrl.replace('https:', 'http:');
+			console.log('URL changed to HTTP:', apiUrl);
+		}
+
+		// 发送注册请求
 		uni.request({
-			url:serverUrl,
+			url: `${apiUrl}/mallUserRegister`,
+			method: 'POST',
+			data: {
+				username: this.username,
+				password: this.password,
+				nickname: this.username, // 默认使用用户名作为昵称
+				phone: '' // 可以在表单中添加手机号字段
+			},
 			fail: (err) => {
 				console.log(err)
 				//debugger

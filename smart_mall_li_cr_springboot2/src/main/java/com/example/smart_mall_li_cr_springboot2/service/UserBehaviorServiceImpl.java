@@ -50,4 +50,25 @@ public class UserBehaviorServiceImpl implements UserBehaviorService {
         }
         return userBehaviorMapper.selectByItemId(itemId, behaviorType);
     }
+
+    @Override
+    public int countUserBehaviors(Integer userId, Integer behaviorType) {
+        if (userId == null) {
+            return 0;
+        }
+
+        try {
+            // 调用Mapper层的方法进行统计
+            // 如果没有直接的统计方法，可以先获取列表再计算大小
+            List<UserBehavior> behaviors = userBehaviorMapper.selectByUserId(userId, behaviorType);
+            return behaviors != null ? behaviors.size() : 0;
+
+            // 如果Mapper中有直接的统计方法，可以使用下面的代码
+            // return userBehaviorMapper.countByUserIdAndType(userId, behaviorType);
+        } catch (Exception e) {
+            System.err.println("统计用户行为数量失败: " + e.getMessage());
+            e.printStackTrace();
+            return 0;
+        }
+    }
 }

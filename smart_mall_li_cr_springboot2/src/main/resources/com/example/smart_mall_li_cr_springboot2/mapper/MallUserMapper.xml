@@ -43,7 +43,7 @@
 
     <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
         delete from mall_user
-        where  id = #{id} 
+        where  id = #{id}
     </delete>
     <insert id="insert" keyColumn="id" keyProperty="id" parameterType="com.example.smart_mall_li_cr_springboot2.pojo.MallUser" useGeneratedKeys="true">
         insert into mall_user
@@ -127,11 +127,11 @@
                     update_time = #{updateTime},
                 </if>
         </set>
-        where   id = #{id} 
+        where   id = #{id}
     </update>
     <update id="updateByPrimaryKey" parameterType="com.example.smart_mall_li_cr_springboot2.pojo.MallUser">
         update mall_user
-        set 
+        set
             username =  #{username},
             password =  #{password},
             phone =  #{phone},
@@ -144,7 +144,7 @@
             qq_openid =  #{qqOpenid},
             create_time =  #{createTime},
             update_time =  #{updateTime}
-        where   id = #{id} 
+        where   id = #{id}
     </update>
 
     <select id="mallUserLogin" resultMap="BaseResultMap">
@@ -166,10 +166,20 @@
         SELECT COUNT(*) FROM mall_user WHERE create_time >= CURDATE()
     </select>
 
-    <!-- 查询所有商城用户 -->
+    <!-- 用户注册 -->
     <insert id="mallUserRegister" parameterType="com.example.smart_mall_li_cr_springboot2.pojo.MallUserRegisterParam">
-        INSERT INTO mall_user (username, password, phone, nickname)
-        VALUES (#{username}, #{password}, #{phone}, #{nickname})
+        INSERT INTO mall_user (username, password, phone, nickname, avatar, gender, status, create_time, update_time)
+        VALUES (
+            #{username},
+            #{password},
+            CASE WHEN #{phone} = '' OR #{phone} IS NULL THEN LEFT(CONCAT('p', REPLACE(UUID(), '-', '')), 19) ELSE #{phone} END,
+            #{nickname},
+            '/static/default-avatar.png',
+            'unknown',
+            1,
+            NOW(),
+            NOW()
+        )
     </insert>
 
     <update id="updateUserAvatar">

@@ -130,6 +130,25 @@
 			</view>
 		</view>
 
+		<!-- 相似商品推荐 -->
+		<view class="similar-items" v-if="similarItems.length > 0">
+			<view class="section-header">
+				<text class="section-title">相似商品推荐</text>
+			</view>
+			<scroll-view scroll-x class="similar-scroll">
+				<view
+					class="similar-item"
+					v-for="(item, index) in similarItems"
+					:key="index"
+					@click="goToItemDetail(item.id)"
+				>
+					<image class="similar-image" :src="item.mainImage || '/static/default_item.png'"></image>
+					<view class="similar-name">{{item.name}}</view>
+					<view class="similar-price">¥{{item.price}}</view>
+				</view>
+			</scroll-view>
+		</view>
+
 		<!-- 底部操作栏 -->
 		</view>
 		<view class="action-bar">
@@ -173,7 +192,8 @@ export default {
 				sizes: [], // 可选尺寸 (新增)
 				selectedSize: null, // 已选尺寸 (新增)
 				reviews: [], // 商品评价列表 (新增)
-				cartCount: 0 // 购物车数量 (新增，可能需要从全局状态获取)
+				cartCount: 0, // 购物车数量 (新增，可能需要从全局状态获取)
+				similarItems: [] // 相似商品推荐
 			}
 		},
 		onLoad(options) {
@@ -226,6 +246,9 @@ export default {
 
 							// 加载购物车数量
 							this.loadCartCount();
+
+							// 加载相似商品
+							this.loadSimilarItems();
 
 						} else {
 							uni.showToast({
@@ -323,7 +346,7 @@ export default {
 					url: `${API_BASE_URL}/addCart`,
 					method: 'POST',
 					header: {
-						'content-type': 'application/x-www-form-urlencoded' // 使用表单格式
+						'content-type': 'application/json' // 使用JSON格式
 					},
 					data: {
 						userId: userId,
@@ -334,19 +357,20 @@ export default {
 						console.log('添加购物车响应:', res);
 						// 检查HTTP状态码
 						if (res.statusCode === 200) {
-							if (res.data === true) { // 假设后端返回true表示成功
+							// 检查返回的Result对象
+							if (res.data && res.data.success) {
 								// 记录加入购物车行为
 								this.recordBehavior(2); // 2-加入购物车
 
 								uni.showToast({
-									title: '添加成功',
+									title: res.data.message || '添加成功',
 									icon: 'success'
 								});
 								// 更新购物车角标数量
 								this.loadCartCount();
 							} else {
 								uni.showToast({
-									title: '添加失败，请重试',
+									title: res.data && res.data.message ? res.data.message : '添加失败，请重试',
 									icon: 'none'
 								});
 							}
@@ -509,7 +533,38 @@ export default {
 				uni.navigateTo({
 					url: '/pages/chat/chat'
 				});
-			}
+			},
+			// 加载相似商品
+			loadSimilarItems() {
+				if (!this.itemId || !this.item.categoryId) return;
+
+				// 使用分类推荐相似商品
+				uni.request({
+					url: `${API_BASE_URL}/recommend/category/${this.item.categoryId}?limit=6`,
+					success: (res) => {
+						if (res.data && res.data.success && res.data.data) {
+							// 过滤掉当前商品
+							this.similarItems = res.data.data.filter(item => item.id != this.itemId);
+						}
+					},
+					fail: (err) => {
+						console.error('获取相似商品失败', err);
+					}
+				});
+			},
+
+			// 跳转到商品详情
+			goToItemDetail(id) {
+				if (!id) return;
+
+				// 如果是当前商品，不跳转
+				if (id == this.itemId) return;
+
+				uni.navigateTo({
+					url: `/pages/item/detail?id=${id}`
+				});
+			},
+
 			// === 新增方法占位符结束 ===
 		}
 	}
@@ -857,5 +912,45 @@ export default {
 
 	.buy-now {
 		background-color: #ff6700;
+	}
+
+	/* 相似商品推荐样式 */
+	.similar-items {
+		padding: 20rpx 30rpx;
+		background-color: #fff;
+		margin-bottom: 20rpx;
+	}
+
+	.similar-scroll {
+		white-space: nowrap;
+		padding: 10rpx 0;
+	}
+
+	.similar-item {
+		display: inline-block;
+		width: 220rpx;
+		margin-right: 20rpx;
+		vertical-align: top;
+	}
+
+	.similar-image {
+		width: 220rpx;
+		height: 220rpx;
+		border-radius: 10rpx;
+	}
+
+	.similar-name {
+		font-size: 26rpx;
+		color: #333;
+		margin: 10rpx 0;
+		overflow: hidden;
+		text-overflow: ellipsis;
+		white-space: nowrap;
+	}
+
+	.similar-price {
+		font-size: 28rpx;
+		color: #ff6700;
+		font-weight: bold;
 	}
 </style>

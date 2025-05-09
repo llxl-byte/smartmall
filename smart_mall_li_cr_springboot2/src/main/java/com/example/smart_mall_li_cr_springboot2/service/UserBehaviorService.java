@@ -8,7 +8,7 @@ import java.util.List;
  * 用户行为服务接口
  */
 public interface UserBehaviorService {
-    
+
     /**
      * 记录用户行为
      * @param userId 用户ID
@@ -17,7 +17,7 @@ public interface UserBehaviorService {
      * @return 是否记录成功
      */
     boolean recordBehavior(Integer userId, Integer itemId, Integer behaviorType);
-    
+
     /**
      * 获取用户的行为记录
      * @param userId 用户ID
@@ -25,7 +25,7 @@ public interface UserBehaviorService {
      * @return 用户行为记录列表
      */
     List<UserBehavior> getUserBehaviors(Integer userId, Integer behaviorType);
-    
+
     /**
      * 获取商品的行为记录
      * @param itemId 商品ID
@@ -33,4 +33,12 @@ public interface UserBehaviorService {
      * @return 商品行为记录列表
      */
     List<UserBehavior> getItemBehaviors(Integer itemId, Integer behaviorType);
+
+    /**
+     * 统计用户的行为数量
+     * @param userId 用户ID
+     * @param behaviorType 行为类型，可为null表示查询所有类型
+     * @return 行为数量
+     */
+    int countUserBehaviors(Integer userId, Integer behaviorType);
 }

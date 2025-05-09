@@ -18,5 +18,19 @@ public interface CouponService {
      */
     List<CouponDTO> findAvailableCoupons(AvailableCouponsRequestDTO requestDTO);
 
+    /**
+     * 获取用户的所有优惠券
+     * @param userId 用户ID
+     * @return 用户的优惠券列表
+     */
+    List<CouponDTO> getUserCoupons(Long userId);
+
     // 未来可以添加其他方法，如：领取优惠券、核销优惠券等
-} 
+
+    /**
+     * 统计用户的优惠券数量
+     * @param userId 用户ID
+     * @return 优惠券数量
+     */
+    int countUserCoupons(Integer userId);
+}

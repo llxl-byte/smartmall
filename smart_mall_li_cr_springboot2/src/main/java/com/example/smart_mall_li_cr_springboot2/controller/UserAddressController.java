@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * 用户收货地址 Controller
@@ -80,8 +81,56 @@ public class UserAddressController {
      * @return 操作结果
      */
     @PostMapping("/delete")
-    public Result<Boolean> deleteAddress(@RequestParam Long id, @RequestParam Integer userId) {
-        return userAddressService.deleteAddress(id, userId);
+    public Result<Boolean> deleteAddress(@RequestParam(required = false) Long id,
+                                        @RequestParam(required = false) Integer userId,
+                                        @RequestBody(required = false) Map<String, Object> requestBody) {
+        // 如果使用请求参数，直接使用
+        if (id != null && userId != null) {
+            return userAddressService.deleteAddress(id, userId);
+        }
+
+        // 如果使用请求体，从请求体中提取参数
+        if (requestBody != null) {
+            Object idObj = requestBody.get("id");
+            Object userIdObj = requestBody.get("userId");
+
+            if (idObj != null && userIdObj != null) {
+                Long addressId = null;
+                Integer uid = null;
+
+                // 尝试转换id
+                if (idObj instanceof Integer) {
+                    addressId = ((Integer) idObj).longValue();
+                } else if (idObj instanceof Long) {
+                    addressId = (Long) idObj;
+                } else if (idObj instanceof String) {
+                    try {
+                        addressId = Long.parseLong((String) idObj);
+                    } catch (NumberFormatException e) {
+                        return new Result<>(false, "地址ID格式不正确");
+                    }
+                }
+
+                // 尝试转换userId
+                if (userIdObj instanceof Integer) {
+                    uid = (Integer) userIdObj;
+                } else if (userIdObj instanceof Long) {
+                    uid = ((Long) userIdObj).intValue();
+                } else if (userIdObj instanceof String) {
+                    try {
+                        uid = Integer.parseInt((String) userIdObj);
+                    } catch (NumberFormatException e) {
+                        return new Result<>(false, "用户ID格式不正确");
+                    }
+                }
+
+                if (addressId != null && uid != null) {
+                    return userAddressService.deleteAddress(addressId, uid);
+                }
+            }
+        }
+
+        return new Result<>(false, "缺少必要的参数");
     }
 
     /**

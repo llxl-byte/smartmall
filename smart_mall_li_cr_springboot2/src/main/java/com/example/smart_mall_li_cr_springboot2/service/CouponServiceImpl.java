@@ -62,4 +62,52 @@ public class CouponServiceImpl implements CouponService {
         // dto.setValidityEnd(coupon.getExpiryDate()); // 例子：如果字段名不同
         return dto;
     }
-} 
+
+    @Override
+    public List<CouponDTO> getUserCoupons(Long userId) {
+        if (userId == null) {
+            return new ArrayList<>();
+        }
+
+        try {
+            // 获取用户的所有有效优惠券
+            Date currentDate = new Date();
+            List<Coupon> userCoupons = couponMapper.findUserValidCoupons(userId, currentDate);
+
+            if (userCoupons == null || userCoupons.isEmpty()) {
+                return new ArrayList<>();
+            }
+
+            // 将 Coupon 实体转换为 CouponDTO
+            return userCoupons.stream()
+                    .map(this::convertToDTO)
+                    .collect(Collectors.toList());
+        } catch (Exception e) {
+            System.err.println("获取用户优惠券失败: " + e.getMessage());
+            e.printStackTrace();
+            return new ArrayList<>();
+        }
+    }
+
+    @Override
+    public int countUserCoupons(Integer userId) {
+        if (userId == null) {
+            return 0;
+        }
+
+        try {
+            // 获取用户的所有有效优惠券
+            Date currentDate = new Date();
+            List<Coupon> userCoupons = couponMapper.findUserValidCoupons(userId.longValue(), currentDate);
+            // 返回优惠券数量
+            return userCoupons != null ? userCoupons.size() : 0;
+
+            // 如果有直接的统计方法，可以使用下面的代码
+            // return couponMapper.countByUserId(userId);
+        } catch (Exception e) {
+            System.err.println("统计用户优惠券数量失败: " + e.getMessage());
+            e.printStackTrace();
+            return 0;
+        }
+    }
+}

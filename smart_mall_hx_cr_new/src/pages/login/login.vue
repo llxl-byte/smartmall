@@ -1,59 +1,53 @@
 <template>
 	<view class="container">
 		<view class="form-item">
-			<text class="label">用户名：</text>
-			<input class="input" v-model="username" placeholder="请输入用户名"/>
+			<text class="label">用户名</text>
+			<input class="input" type="text" v-model="username" placeholder="请输入用户名" />
 		</view>
 		<view class="form-item">
-			<text class="label">密码：</text>
-			<input class="input" v-model="password" type="password" placeholder="请输入密码"/>
+			<text class="label">密码</text>
+			<input class="input" type="password" v-model="password" placeholder="请输入密码" />
 		</view>
-		<!--添加记住密码选项-->
 		<view class="remember-password">
-			<checkbox :checked="rememberPassword"@click="rememberPassword=!rememberPassword"/>
-			<text class="remember-text">记住密码</text>
+			<checkbox :checked="rememberPassword" @click="rememberPassword = !rememberPassword" />
+			<text class="remember-text" @click="rememberPassword = !rememberPassword">记住密码</text>
 		</view>
-		<view>
-			<button class="btn-login" @click="login">登录</button>
-		</view>
-		<view v-if="errorMessage" class="error-message">
-			<text>{{errorMessage}}</text>
-		</view>
-		<!-- 添加注册链接-->
+		<view class="error-message" v-if="errorMessage">{{ errorMessage }}</view>
+		<button class="btn-login" @click="login">登录</button>
 		<view class="register-link">
 			<text>还没有账号？</text>
-			<text class="link" @click="goToRegister">去注册</text>
+			<text class="link" @click="goToRegister">立即注册</text>
 		</view>
 	</view>
-
-
-
 </template>
 
 <script>
+	import { API_BASE_URL } from '@/config.js';
+
 	export default {
 		data() {
 			return {
 				username: '',
 				password: '',
-				errorMessage: '',
 				rememberPassword: false,
+				errorMessage: '',
 				baseUrl: ''
 			}
 		},
-		created() {
-			// 获取当前域名并设置baseUrl
-			const currentUrl = window.location.href;
-			if (currentUrl.includes('.app.github.dev')) {
-				// Codespace环境 - 使用完整的后端 URL
-				// 将前端端口号替换为后端端口号 8083
-				const domain = window.location.hostname;
-				this.baseUrl = `https://${domain.replace('-8080', '-8083')}`;
-			} else {
-				// 本地开发环境
-				this.baseUrl = 'http://127.0.0.1:8083';
+		onLoad() {
+			// 尝试从本地存储获取保存的用户名和密码
+			const savedUsername = uni.getStorageSync('savedUsername');
+			const savedPassword = uni.getStorageSync('savedPassword');
+
+			if (savedUsername && savedPassword) {
+				this.username = savedUsername;
+				this.password = savedPassword;
+				this.rememberPassword = true;
 			}
-			console.log('Using API Base URL:', this.baseUrl); // 添加日志便于调试
+
+			// 设置API基础URL
+			this.baseUrl = API_BASE_URL;
+			console.log('Using API Base URL:', this.baseUrl);
 		},
 		methods: {
 			login() {
@@ -67,13 +61,20 @@
 				}
 
 				// 构建完整的URL
-				const serverUrl = `${this.baseUrl}/mallUserLogin`;
+				// 使用正确的登录接口路径，确保使用HTTP协议
+				let serverUrl = this.baseUrl;
+				if (serverUrl.startsWith('https:')) {
+					serverUrl = serverUrl.replace('https:', 'http:');
+					console.log('URL changed to HTTP:', serverUrl);
+				}
+				serverUrl = `${serverUrl}/mallUserLogin`;
 
 				// 发送请求
 				uni.request({
 					url: serverUrl,
 					method: 'GET',
 					data: {
+						// 使用正确的参数名称
 						username: this.username,
 						password: this.password
 					},
@@ -82,8 +83,8 @@
 						'Content-Type': 'application/x-www-form-urlencoded'
 					},
 					success: (res) => {
-						console.log('Request URL:', serverUrl); // 打印请求URL
-						console.log('Response:', res); // 打印完整响应
+						console.log('Request URL:', serverUrl);
+						console.log('Response:', res);
 
 						if (typeof res.data === 'string' && res.data.includes('<!DOCTYPE html>')) {
 							console.error('Received HTML instead of JSON');
@@ -92,20 +93,6 @@
 						}
 
 						if (res.data && res.data.success) {
-							uni.showToast({
-								title: '登录成功',
-								icon: 'success',
-								duration: 2000
-							});
-
-							if (this.rememberPassword) {
-								uni.setStorageSync('savedUsername', this.username);
-								uni.setStorageSync('savedPassword', this.password);
-							} else {
-								uni.removeStorageSync('savedUsername');
-								uni.removeStorageSync('savedPassword');
-							}
-
 							// 登录成功，处理响应数据
 							uni.showToast({
 								title: '登录成功',
@@ -113,18 +100,7 @@
 								duration: 2000
 							});
 
-							// 检查响应数据中是否包含JWT令牌
-							if (res.data && res.data.data) {
-								const token = res.data.data; // 获取JWT令牌
-								// 将JWT令牌存储到localStorage中，以便后续请求使用
-								localStorage.setItem('jwtToken', token);
-								console.log('JWT Token stored:', token); // 打印存储的令牌
-							} else {
-								console.warn('Login successful, but no JWT token received in response data.');
-								// 如果登录成功但没有令牌，可能需要根据实际情况处理，例如显示警告或阻止跳转
-							}
-
-
+							// 处理记住密码
 							if (this.rememberPassword) {
 								uni.setStorageSync('savedUsername', this.username);
 								uni.setStorageSync('savedPassword', this.password);
@@ -133,17 +109,74 @@
 								uni.removeStorageSync('savedPassword');
 							}
 
-							// uni.setStorageSync('userInfo', res.data.data); // 如果后端返回的用户信息在其他字段，请修改这里
+							// 存储用户信息
+							if (res.data.data) {
+								// 处理后端返回的数据格式，从data中提取userInfo和token
+								const responseData = res.data.data;
+								let userInfo = {};
+								let token = '';
 
+								// 检查后端返回的数据格式
+								console.log('Response data structure:', responseData);
+
+								if (responseData.userInfo) {
+									// 新格式，包含userInfo和token
+									userInfo = responseData.userInfo || {};
+									token = responseData.token || '';
+								} else if (typeof responseData === 'object') {
+									// 可能是直接返回的用户对象
+									userInfo = responseData;
+									// token可能在其他地方
+								} else if (typeof responseData === 'string') {
+									// 可能只返回了token字符串
+									token = responseData;
+									userInfo = {
+										username: this.username,
+										nickname: this.username
+									};
+								}
+
+								// 构建完整的用户信息对象
+								const completeUserInfo = {
+									id: userInfo.id || '',
+									username: this.username,
+									nickname: userInfo.nickname || this.username,
+									avatar: userInfo.avatar || '/static/default-avatar.png',
+									token: token
+								};
+
+								// 存储用户信息
+								uni.setStorageSync('userInfo', completeUserInfo);
+								console.log('User info stored:', completeUserInfo);
+
+								// 如果有令牌，存储令牌
+								if (token) {
+									localStorage.setItem('jwtToken', token);
+									console.log('JWT Token stored:', token);
+								}
+							} else {
+								// 如果没有用户数据，创建一个基本的用户信息对象
+								const userInfo = {
+									id: '',
+									username: this.username,
+									nickname: this.username,
+									avatar: '/static/default-avatar.png',
+									token: ''
+								};
+								uni.setStorageSync('userInfo', userInfo);
+								console.log('Basic user info stored:', userInfo);
+							}
+
+							// 跳转到首页
 							setTimeout(() => {
 								uni.switchTab({
-									url: '/pages/main/main' // 假设登录成功后跳转到main页面
+									url: '/pages/index/index'
 								});
 							}, 1500);
 						} else {
 							// 登录失败，显示错误信息
 							this.errorMessage = res.data?.message || '登录失败，请稍后再试';
-							console.error('Login failed:', res.data); // 打印失败响应
+							console.error('Login failed:', res.data);
 						}
 					},
 					fail: (err) => {
@@ -162,9 +195,6 @@
 		}
 	}
 </script>
-
-
-
 
 <style>
 .container {

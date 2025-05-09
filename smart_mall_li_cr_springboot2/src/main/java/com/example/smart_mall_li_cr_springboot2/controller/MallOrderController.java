@@ -15,24 +15,55 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.RestController;
 
-@CrossOrigin
+@CrossOrigin(originPatterns = {"https://*.app.github.dev", "http://localhost:*", "http://127.0.0.1:*"}, allowCredentials = "false")
 @RestController
 public class MallOrderController {
     @Autowired
     MallOrderService mallOrderService;
-    
+
     @Autowired(required = false)
     OrderDetailService orderDetailService; // 可能不存在，所以标记为非必须
-    
-    @RequestMapping("/addMallOrder")
-    public boolean AddMallOrder(AddMallOrderParam addMallOrderParam) {
-        System.out.println("接收到订单提交请求: " + addMallOrderParam);
+
+    @PostMapping("/addMallOrder")
+    public Result<Boolean> AddMallOrder(@RequestBody(required = false) AddMallOrderParam addMallOrderParam,
+                                      @RequestParam(required = false) Integer userId,
+                                      @RequestParam(required = false) String addressInfo,
+                                      @RequestParam(required = false) String itemsList) {
+        System.out.println("接收到订单提交请求");
+
         try {
-            return mallOrderService.AddMallOrder(addMallOrderParam);
+            // 如果使用请求体参数
+            if (addMallOrderParam != null) {
+                System.out.println("使用请求体参数: " + addMallOrderParam);
+                boolean success = mallOrderService.AddMallOrder(addMallOrderParam);
+                if (success) {
+                    return new Result<>(true, "订单提交成功", true);
+                } else {
+                    return new Result<>(false, "订单提交失败", false);
+                }
+            }
+
+            // 如果使用请求参数
+            if (userId != null) {
+                System.out.println("使用请求参数: userId=" + userId);
+                AddMallOrderParam param = new AddMallOrderParam();
+                param.setUserId(userId);
+                param.setAddressInfo(addressInfo);
+                param.setItemsList(itemsList);
+
+                boolean success = mallOrderService.AddMallOrder(param);
+                if (success) {
+                    return new Result<>(true, "订单提交成功", true);
+                } else {
+                    return new Result<>(false, "订单提交失败", false);
+                }
+            }
+
+            return new Result<>(false, "缺少必要的参数", false);
         } catch (Exception e) {
             System.err.println("提交订单处理失败: " + e.getMessage());
             e.printStackTrace();
-            return false;
+            return new Result<>(false, "提交订单失败: " + e.getMessage(), false);
         }
     }
 
@@ -63,42 +94,42 @@ public class MallOrderController {
      * 创建完整订单（包含订单详情）
      * 解决前端404错误问题
      */
-    @RequestMapping("/createFullOrder")
+    @PostMapping("/createFullOrder")
     @ResponseBody
     public Result<Map<String, Object>> createFullOrder(@RequestBody Map<String, Object> requestData) {
         System.out.println("接收到完整订单创建请求: " + requestData);
-        
+
         try {
             // 从请求中提取userId
             Integer userId = null;
             if (requestData.containsKey("userId")) {
                 userId = Integer.parseInt(requestData.get("userId").toString());
             }
-            
+
             // 从请求中提取地址信息
             String addressInfo = null;
             if (requestData.containsKey("addressInfo")) {
                 addressInfo = requestData.get("addressInfo").toString();
             }
-            
+
             // 检查必要参数
             if (userId == null || addressInfo == null) {
                 return Result.error("缺少必要参数：userId或addressInfo");
             }
-            
+
             // 检查是否是直接购买
-            boolean isDirectBuy = requestData.containsKey("directBuy") && 
+            boolean isDirectBuy = requestData.containsKey("directBuy") &&
                                   Boolean.TRUE.equals(requestData.get("directBuy"));
-            boolean isFromCart = requestData.containsKey("fromCart") && 
+            boolean isFromCart = requestData.containsKey("fromCart") &&
                                  Boolean.TRUE.equals(requestData.get("fromCart"));
-            
+
             System.out.println("订单类型: " + (isDirectBuy ? "直接购买" : isFromCart ? "购物车结算" : "未知来源"));
-            
+
             // 创建订单参数对象
             AddMallOrderParam param = new AddMallOrderParam();
             param.setUserId(userId);
             param.setAddressInfo(addressInfo);
-            
+
             // 如果有商品列表，将其转为JSON字符串
             if (requestData.containsKey("items")) {
                 try {
@@ -119,7 +150,7 @@ public class MallOrderController {
             } else {
                 System.out.println("请求中没有找到items参数");
             }
-            
+
             // 增加一个标记，表明这是直接购买的订单
             if (isDirectBuy) {
                 System.out.println("这是直接购买的订单");
@@ -137,17 +168,17 @@ public class MallOrderController {
                     }
                 }
             }
-            
+
             // 调用订单服务创建订单
             boolean success = mallOrderService.AddMallOrder(param);
-            
+
             if (success) {
                 // 构建返回数据
                 Map<String, Object> resultData = new java.util.HashMap<>();
                 resultData.put("userId", userId);
                 resultData.put("orderCreated", true);
                 resultData.put("timestamp", new java.util.Date().getTime());
-                
+
                 // 对直接购买添加特殊标识
                 if (isDirectBuy) {
                     resultData.put("orderType", "direct_buy");
@@ -156,7 +187,7 @@ public class MallOrderController {
                     resultData.put("orderType", "cart_checkout");
                     resultData.put("cartCheckoutSuccess", true);
                 }
-                
+
                 // 明确返回success=true
                 return Result.success(resultData, "订单创建成功");
             } else {
@@ -170,7 +201,7 @@ public class MallOrderController {
         } catch (Exception e) {
             System.err.println("创建完整订单失败: " + e.getMessage());
             e.printStackTrace();
-            
+
             Map<String, Object> errorData = new java.util.HashMap<>();
             errorData.put("error", e.getMessage());
             return Result.error("创建订单时发生错误: " + e.getMessage(), errorData);
@@ -253,7 +284,7 @@ public class MallOrderController {
         try {
             String status = requestBody.get("status"); // 例如：REFUNDED, RETURN_ACCEPTED
             String remarks = requestBody.get("remarks"); // 处理备注
-            
+
             // 调用服务层处理订单状态更新
             boolean success = mallOrderService.updateOrderStatus(orderId, status, remarks);
             if (success) {
@@ -265,6 +296,25 @@ public class MallOrderController {
             System.err.println("后台管理端处理订单退货/售后失败: " + e.getMessage());
             e.printStackTrace();
             return Result.error("订单处理操作失败");
+        }
+    }
+
+    /**
+     * 获取用户订单数量
+     * @param userId 用户ID
+     * @return 订单数量
+     */
+    @GetMapping("/order/count")
+    public Result<Integer> getOrderCount(@RequestParam("userId") Integer userId) {
+        System.out.println("获取用户订单数量，用户ID: " + userId);
+        try {
+            // 调用Service层获取订单数量
+            int count = mallOrderService.countOrdersByUserId(userId);
+            return Result.success(count);
+        } catch (Exception e) {
+            System.err.println("获取用户订单数量失败: " + e.getMessage());
+            e.printStackTrace();
+            return Result.error("获取订单数量失败");
         }
     }
 }

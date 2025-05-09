@@ -15,7 +15,7 @@ import java.io.IOException;
 import java.util.List;
 import java.util.UUID;
 
-@CrossOrigin(origins = {"http://localhost:5173", "http://127.0.0.1:5173"}, allowCredentials = "false")
+@CrossOrigin(originPatterns = {"https://*.app.github.dev", "http://localhost:*", "http://127.0.0.1:*"}, allowCredentials = "false")
 @RestController
 public class MallUserController {
     @Autowired
@@ -23,9 +23,21 @@ public class MallUserController {
     @Autowired
     private JwtUtil jwtUtil;
 
-    @RequestMapping("/mallUserRegister")
-    public boolean mallUserRegister(MallUserRegisterParam mallUserRegisterParam) {
-        return mallUserService.mallUserRegister(mallUserRegisterParam);
+    @PostMapping("/mallUserRegister")
+    public Result<Boolean> mallUserRegister(@RequestBody MallUserRegisterParam mallUserRegisterParam) {
+        try {
+            System.out.println("接收到注册请求: " + mallUserRegisterParam.getUsername());
+            boolean success = mallUserService.mallUserRegister(mallUserRegisterParam);
+            if (success) {
+                return new Result<>(true, "注册成功", true);
+            } else {
+                return new Result<>(false, "注册失败，用户名可能已存在", false);
+            }
+        } catch (Exception e) {
+            System.err.println("注册失败: " + e.getMessage());
+            e.printStackTrace();
+            return new Result<>(false, "注册失败: " + e.getMessage(), false);
+        }
     }
 
     @GetMapping("/mallUserLogin")
@@ -43,9 +55,17 @@ public class MallUserController {
             // 如果登录成功，生成JWT令牌
             if (loginResult.isSuccess()) {
                 String token = jwtUtil.generateToken(username);
-                // 将令牌添加到结果中，可以通过Result类的一个字段或附加数据来返回
-                // 这里假设Result类有一个setData方法来设置额外数据
-                loginResult.setData(token);
+
+                // 获取用户信息
+                MallUser user = (MallUser) loginResult.getData();
+
+                // 创建一个Map来存储用户信息和token
+                java.util.Map<String, Object> resultMap = new java.util.HashMap<>();
+                resultMap.put("userInfo", user);
+                resultMap.put("token", token);
+
+                // 设置返回数据为包含token的用户信息
+                loginResult.setData(resultMap);
             }
             return loginResult;
         } catch (Exception e) {
@@ -89,16 +109,44 @@ public class MallUserController {
     }
 
     @PostMapping("/updateUserInfo")
-    public Result updateUserInfo(@RequestBody MallUser user) {
+    public Result<Boolean> updateUserInfo(@RequestBody MallUser user) {
         try {
+            System.out.println("接收到更新用户信息请求: " + user);
+
+            // 验证用户ID
+            if (user.getId() == null) {
+                return new Result<>(false, "缺少用户ID", false);
+            }
+
+            // 查询用户是否存在
+            MallUser existingUser = mallUserService.getMallUserById(user.getId());
+            if (existingUser == null) {
+                return new Result<>(false, "用户不存在", false);
+            }
+
+            // 保留原有信息，只更新提供的字段
+            if (user.getNickname() == null) {
+                user.setNickname(existingUser.getNickname());
+            }
+            if (user.getPhone() == null) {
+                user.setPhone(existingUser.getPhone());
+            }
+            if (user.getAvatar() == null) {
+                user.setAvatar(existingUser.getAvatar());
+            }
+
             boolean updated = mallUserService.updateUserInfo(user);
             if (updated) {
-                return new Result(true, "用户信息更新成功");
+                // 获取更新后的用户信息
+                MallUser updatedUser = mallUserService.getMallUserById(user.getId());
+                return new Result<Boolean>(true, "用户信息更新成功", true);
             } else {
-                return new Result(false, "用户信息更新失败");
+                return new Result<>(false, "用户信息更新失败", false);
             }
         } catch (Exception e) {
-            return new Result(false, "更新失败：" + e.getMessage());
+            System.err.println("更新用户信息失败: " + e.getMessage());
+            e.printStackTrace();
+            return new Result<>(false, "更新失败: " + e.getMessage(), false);
         }
     }
 
