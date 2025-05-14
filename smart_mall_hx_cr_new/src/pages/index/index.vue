@@ -37,6 +37,7 @@
 		<view class="recommend-section">
 			<view class="section-header">
 				<text class="section-title">为您推荐</text>
+				<text class="section-more" @click="goToMore('recommend')">更多 ></text>
 			</view>
 			<scroll-view scroll-x class="recommend-scroll" v-if="recommendItems.length > 0">
 				<view
@@ -45,13 +46,16 @@
 					:key="'rec-'+index"
 					@click="goToDetail(item.id)"
 				>
-					<image class="recommend-image" :src="item.mainImage || '/static/default_item.png'"></image>
+					<view class="recommend-image-container">
+						<image class="recommend-image" :src="item.mainImage || '../../static/landscape.jpg'"></image>
+						<view class="recommend-tag">推荐</view>
+					</view>
 					<view class="recommend-name">{{item.name}}</view>
 					<view class="recommend-price">¥{{item.price}}</view>
 				</view>
 			</scroll-view>
 			<view class="no-data-placeholder" v-else>
-				<text>暂无推荐商品</text>
+				<text>正在为您生成个性化推荐...</text>
 			</view>
 		</view>
 
@@ -59,6 +63,7 @@
 		<view class="hot-section">
 			<view class="section-header">
 				<text class="section-title">热销商品</text>
+				<text class="section-more" @click="goToMore('hot')">更多 ></text>
 			</view>
 			<scroll-view scroll-x class="hot-scroll" v-if="hotItems.length > 0">
 				<view
@@ -67,14 +72,18 @@
 					:key="'hot-'+index"
 					@click="goToDetail(item.id)"
 				>
-					<image class="hot-image" :src="item.mainImage || '/static/default_item.png'"></image>
+					<view class="hot-image-container">
+						<image class="hot-image" :src="item.mainImage || '../../static/scenery.jpg'"></image>
+						<view class="hot-tag">热销</view>
+						<view class="hot-rank" v-if="index < 3">{{index + 1}}</view>
+					</view>
 					<view class="hot-name">{{item.name}}</view>
 					<view class="hot-price">¥{{item.price}}</view>
 					<view class="hot-sales">销量: {{item.sales || 0}}</view>
 				</view>
 			</scroll-view>
 			<view class="no-data-placeholder" v-else>
-				<text>暂无热销商品</text>
+				<text>正在加载热销商品...</text>
 			</view>
 		</view>
 
@@ -89,7 +98,7 @@
 				:key="index"
 				@click="goToDetail(item.id)"
 			>
-				<image class="item-image" :src="item.mainImage || '/static/default_item.png'"></image>
+				<image class="item-image" :src="item.mainImage || '../../static/小米15Pro.png'"></image>
 				<view class="item-info">
 					<view class="item-name">{{item.name}}</view>
 					<view class="item-price">¥{{item.price}}</view>
@@ -186,30 +195,30 @@ export default {
 				const mockItems = [
 					{
 						id: 7,
-						name: '商品 1',
+						name: '华为Mate70',
 						price: 6999,
-						mainImage: '/static/landscape.jpg',
+						mainImage: '../../static/华为Mate70.jpg',
 						sales: 200
 					},
 					{
 						id: 8,
-						name: '商品 2',
+						name: '华为P70',
 						price: 7999,
-						mainImage: '/static/scenery.jpg',
+						mainImage: '../../static/华为P70.jpg',
 						sales: 150
 					},
 					{
 						id: 9,
-						name: '商品 3',
+						name: '小米15Ultra',
 						price: 8999,
-						mainImage: '/static/landscape.jpg',
+						mainImage: '../../static/小米15Ultra.png',
 						sales: 100
 					},
 					{
 						id: 10,
-						name: '商品 4',
+						name: '小米15Pro',
 						price: 9999,
-						mainImage: '/static/scenery.jpg',
+						mainImage: '../../static/小米15Pro.png',
 						sales: 50
 					}
 				];
@@ -316,6 +325,13 @@ export default {
 				});
 			},
 
+			// 跳转到更多页面
+			goToMore(type) {
+				uni.navigateTo({
+					url: `/pages/more/more?type=${type}`
+				});
+			},
+
 			// 加载热销商品
 			loadHotItems() {
 				// 先检查是否有登录信息
@@ -326,23 +342,23 @@ export default {
 				const mockHotItems = [
 					{
 						id: 1,
-						name: '热销商品 1',
+						name: '小米15',
 						price: 999,
-						mainImage: '/static/landscape.jpg',
+						mainImage: '../../static/小米15.png',
 						sales: 1000
 					},
 					{
 						id: 2,
-						name: '热销商品 2',
+						name: '惠普暗影精灵10',
 						price: 1999,
-						mainImage: '/static/scenery.jpg',
+						mainImage: '../../static/惠普暗影精灵10.jpg',
 						sales: 800
 					},
 					{
 						id: 3,
-						name: '热销商品 3',
+						name: '机械革命蛟龙16',
 						price: 2999,
-						mainImage: '/static/landscape.jpg',
+						mainImage: '../../static/机械革命蛟龙16.jpg',
 						sales: 600
 					}
 				];
@@ -382,23 +398,23 @@ export default {
 				const mockRecommendItems = [
 					{
 						id: 4,
-						name: '推荐商品 1',
+						name: '小米15Pro',
 						price: 3999,
-						mainImage: '/static/scenery.jpg',
+						mainImage: '../../static/小米15Pro.png',
 						sales: 500
 					},
 					{
 						id: 5,
-						name: '推荐商品 2',
+						name: '华为Mate70',
 						price: 4999,
-						mainImage: '/static/landscape.jpg',
+						mainImage: '../../static/华为Mate70.jpg',
 						sales: 400
 					},
 					{
 						id: 6,
-						name: '推荐商品 3',
+						name: '华为P70',
 						price: 5999,
-						mainImage: '/static/scenery.jpg',
+						mainImage: '../../static/华为P70.jpg',
 						sales: 300
 					}
 				];
@@ -571,6 +587,25 @@ export default {
 		font-size: 32rpx;
 		font-weight: bold;
 		color: #333;
+		position: relative;
+		padding-left: 20rpx;
+	}
+
+	.section-title::before {
+		content: '';
+		position: absolute;
+		left: 0;
+		top: 50%;
+		transform: translateY(-50%);
+		width: 8rpx;
+		height: 30rpx;
+		background: linear-gradient(to bottom, #ff6700, #ff9500);
+		border-radius: 4rpx;
+	}
+
+	.section-more {
+		font-size: 24rpx;
+		color: #999;
 	}
 
 	.recommend-scroll, .hot-scroll {
@@ -583,12 +618,61 @@ export default {
 		width: 220rpx;
 		margin: 0 10rpx;
 		vertical-align: top;
+		padding-bottom: 15rpx;
+		transition: transform 0.3s ease;
+	}
+
+	.recommend-item:hover, .hot-item:hover {
+		transform: translateY(-5rpx);
+	}
+
+	.recommend-image-container, .hot-image-container {
+		position: relative;
+		width: 220rpx;
+		height: 220rpx;
+		overflow: hidden;
+		border-radius: 10rpx;
+		background-color: #fff;
+		box-shadow: 0 2rpx 10rpx rgba(0, 0, 0, 0.1);
 	}
 
 	.recommend-image, .hot-image {
-		width: 220rpx;
-		height: 220rpx;
+		width: 100%;
+		height: 100%;
 		border-radius: 10rpx;
+		transition: transform 0.3s ease;
+		object-fit: cover; /* 确保图片正确填充容器 */
+	}
+
+	.recommend-item:hover .recommend-image, .hot-item:hover .hot-image {
+		transform: scale(1.05);
+	}
+
+	.recommend-tag, .hot-tag {
+		position: absolute;
+		top: 10rpx;
+		left: 10rpx;
+		padding: 4rpx 12rpx;
+		background-color: rgba(255, 103, 0, 0.8);
+		color: white;
+		font-size: 20rpx;
+		border-radius: 20rpx;
+	}
+
+	.hot-rank {
+		position: absolute;
+		top: 10rpx;
+		right: 10rpx;
+		width: 40rpx;
+		height: 40rpx;
+		background-color: rgba(255, 0, 0, 0.8);
+		color: white;
+		font-size: 24rpx;
+		font-weight: bold;
+		border-radius: 50%;
+		display: flex;
+		justify-content: center;
+		align-items: center;
 	}
 
 	.recommend-name, .hot-name {
@@ -598,18 +682,22 @@ export default {
 		overflow: hidden;
 		text-overflow: ellipsis;
 		white-space: nowrap;
+		padding: 0 5rpx;
+		font-weight: 500;
 	}
 
 	.recommend-price, .hot-price {
 		font-size: 30rpx;
 		color: #ff6700;
 		font-weight: bold;
+		padding: 0 5rpx;
 	}
 
 	.hot-sales {
 		font-size: 22rpx;
 		color: #999;
 		margin-top: 5rpx;
+		padding: 0 5rpx;
 	}
 
 	.no-data-placeholder {

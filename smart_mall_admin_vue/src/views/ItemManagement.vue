@@ -13,7 +13,17 @@
       <el-table-column prop="stock" label="库存" width="100" />
       <el-table-column label="图片" width="120">
         <template #default="scope">
-          <el-image :src="scope.row.imageUrl" style="width: 50px; height: 50px" :preview-src-list="[scope.row.imageUrl]" />
+          <el-image
+            :src="getImageUrl(scope.row.imageUrl)"
+            style="width: 50px; height: 50px"
+            :preview-src-list="scope.row.imageUrl ? [getImageUrl(scope.row.imageUrl)] : []"
+            fit="cover">
+            <template #error>
+              <div class="image-error-slot">
+                <span>加载失败</span>
+              </div>
+            </template>
+          </el-image>
         </template>
       </el-table-column>
       <el-table-column label="操作" width="200">
@@ -83,6 +93,23 @@ import { ref, computed, onMounted } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import request from '../utils/request'
 
+// 获取图片完整URL
+const getImageUrl = (url) => {
+  if (!url) return ''
+  console.log('原始图片URL:', url);
+
+  // 如果是完整URL，直接返回
+  if (url.startsWith('http')) {
+    console.log('完整URL:', url);
+    return url;
+  }
+
+  // 如果是相对路径，添加基础URL
+  const fullUrl = `http://localhost:8083${url}`;
+  console.log('完整图片URL:', fullUrl);
+  return fullUrl;
+}
+
 // 商品列表数据
 const items = ref([])
 // 搜索关键字
@@ -138,7 +165,7 @@ const rules = {
   stock: [{ required: true, message: '请输入库存数量', trigger: 'blur' }]
 }
 // 上传图片相关
-const uploadAction = ref('/admin/items/upload') // 后端接口地址
+const uploadAction = ref('http://localhost:8083/admin/items/upload') // 后端接口地址
 const uploadHeaders = ref({
   'Authorization': `Bearer ${localStorage.getItem('admin-token') || ''}`
 })
@@ -160,15 +187,18 @@ const fetchItems = async () => {
 
     if (data && data.success && Array.isArray(data.data)) {
       // 将后端返回的商品数据转换为前端需要的格式
-      items.value = data.data.map(item => ({
-        id: item.id,
-        name: item.name,
-        category: item.categoryId ? item.categoryId.toString() : '', // 暂时使用分类ID，后续可以获取分类名称
-        price: item.price,
-        stock: item.stock,
-        description: item.description || '',
-        imageUrl: item.mainImage || ''
-      }))
+      items.value = data.data.map(item => {
+        console.log('商品图片URL:', item.mainImage);
+        return {
+          id: item.id,
+          name: item.name,
+          category: item.categoryId ? item.categoryId.toString() : '', // 暂时使用分类ID，后续可以获取分类名称
+          price: item.price,
+          stock: item.stock,
+          description: item.description || '',
+          imageUrl: item.mainImage || ''
+        };
+      })
       console.log('处理后的商品数据:', items.value)
     } else {
       ElMessage.error('获取商品列表失败: ' + (data ? data.message : '未知错误'))
@@ -228,7 +258,7 @@ const handleEditItem = (row) => {
   dialogVisible.value = true
   // 填充表单数据
   itemForm.value = { ...row }
-  fileList.value = row.imageUrl ? [{ name: '商品图片', url: row.imageUrl }] : []
+  fileList.value = row.imageUrl ? [{ name: '商品图片', url: getImageUrl(row.imageUrl) }] : []
 }
 
 // 处理删除商品
@@ -330,8 +360,17 @@ const submitForm = () => {
 
 // 上传图片成功回调
 const handleUploadSuccess = (response, file, fileList) => {
+  console.log('上传成功响应:', response);
   if (response.success) {
+    // 确保图片URL格式正确
     itemForm.value.imageUrl = response.data // 后端返回的图片URL
+    console.log('设置的图片URL:', itemForm.value.imageUrl);
+    // 测试图片是否可访问
+    const testImg = new Image();
+    testImg.onload = () => console.log('图片加载成功:', getImageUrl(itemForm.value.imageUrl));
+    testImg.onerror = () => console.error('图片加载失败:', getImageUrl(itemForm.value.imageUrl));
+    testImg.src = getImageUrl(itemForm.value.imageUrl);
+
     ElMessage.success('图片上传成功')
   } else {
     ElMessage.error('图片上传失败: ' + response.message)
@@ -387,5 +426,16 @@ const beforeUpload = (file) => {
   font-size: 12px;
   color: #606266;
   margin-top: 7px;
+}
+
+.image-error-slot {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  height: 100%;
+  background-color: #f5f7fa;
+  color: #909399;
+  font-size: 12px;
 }
 </style>

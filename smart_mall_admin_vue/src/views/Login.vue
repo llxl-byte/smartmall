@@ -1,36 +1,53 @@
 <template>
   <div class="login-container">
-    <el-card class="login-card">
-      <template #header>
-        <div class="card-header">
-          <span>后台管理系统登录</span>
+    <div class="login-box">
+      <div class="login-title">
+        <h2>智能商城后台管理系统</h2>
+      </div>
+      <el-card class="login-card" :body-style="{ padding: '30px' }">
+        <div class="welcome-text">
+          <h3>欢迎登录</h3>
+          <p>请使用您的管理员账号登录系统</p>
         </div>
-      </template>
-      <el-form ref="loginFormRef" :model="loginForm" :rules="loginRules" label-width="0px">
-        <el-form-item prop="username">
-          <el-input
-            v-model="loginForm.username"
-            placeholder="请输入用户名"
-            clearable
-          />
-        </el-form-item>
-        <el-form-item prop="password">
-          <el-input
-            v-model="loginForm.password"
-            type="password"
-            placeholder="请输入密码"
-            show-password
-            clearable
-            @keyup.enter="handleLogin"
-          />
-        </el-form-item>
-        <el-form-item>
-          <el-button type="primary" @click="handleLogin" :loading="loading" style="width: 100%;">
-            登 录
-          </el-button>
-        </el-form-item>
-      </el-form>
-    </el-card>
+        <el-form ref="loginFormRef" :model="loginForm" :rules="loginRules" label-width="0px">
+          <el-form-item prop="username">
+            <el-input
+              v-model="loginForm.username"
+              placeholder="请输入用户名"
+              prefix-icon="el-icon-user"
+              clearable
+            >
+              <template #prefix>
+                <i class="el-icon-user">👤</i>
+              </template>
+            </el-input>
+          </el-form-item>
+          <el-form-item prop="password">
+            <el-input
+              v-model="loginForm.password"
+              type="password"
+              placeholder="请输入密码"
+              prefix-icon="el-icon-lock"
+              show-password
+              clearable
+              @keyup.enter="handleLogin"
+            >
+              <template #prefix>
+                <i class="el-icon-lock">🔒</i>
+              </template>
+            </el-input>
+          </el-form-item>
+          <el-form-item>
+            <el-button type="primary" class="login-button" @click="handleLogin" :loading="loading">
+              登 录
+            </el-button>
+          </el-form-item>
+        </el-form>
+        <div class="login-footer">
+          <p>© 2023 智能商城管理系统</p>
+        </div>
+      </el-card>
+    </div>
   </div>
 </template>
 
@@ -111,16 +128,113 @@ const handleLogin = async () => {
   justify-content: center;
   align-items: center;
   height: 100vh;
-  background-color: #f0f2f5; /* 可以设置一个背景色或背景图 */
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  position: relative;
+  overflow: hidden;
+}
+
+.login-container::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 320"><path fill="%23ffffff" fill-opacity="0.05" d="M0,192L48,197.3C96,203,192,213,288,229.3C384,245,480,267,576,250.7C672,235,768,181,864,181.3C960,181,1056,235,1152,234.7C1248,235,1344,181,1392,154.7L1440,128L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z"></path></svg>') no-repeat bottom;
+  background-size: 100%;
+  z-index: 0;
+}
+
+.login-box {
+  width: 450px;
+  z-index: 1;
+  animation: fadeIn 0.8s ease-in-out;
+}
+
+.login-title {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.login-title h2 {
+  color: white;
+  font-size: 28px;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  margin: 0;
 }
 
 .login-card {
-  width: 400px;
+  border-radius: 10px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+  transition: all 0.3s ease;
 }
 
-.card-header {
+.login-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
+}
+
+.welcome-text {
   text-align: center;
-  font-size: 20px;
-  font-weight: bold;
+  margin-bottom: 25px;
+}
+
+.welcome-text h3 {
+  font-size: 22px;
+  color: #333;
+  margin-bottom: 5px;
+}
+
+.welcome-text p {
+  color: #666;
+  font-size: 14px;
+}
+
+.login-button {
+  width: 100%;
+  height: 45px;
+  font-size: 16px;
+  border-radius: 4px;
+  background: linear-gradient(to right, #4facfe 0%, #00f2fe 100%);
+  border: none;
+  transition: all 0.3s ease;
+}
+
+.login-button:hover {
+  background: linear-gradient(to right, #00f2fe 0%, #4facfe 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+}
+
+.login-footer {
+  text-align: center;
+  margin-top: 20px;
+  color: #999;
+  font-size: 12px;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.el-input {
+  margin-bottom: 5px;
+}
+
+.el-input__inner {
+  height: 45px;
+}
+
+.el-icon-user, .el-icon-lock {
+  font-size: 16px;
+  margin-right: 5px;
 }
 </style>

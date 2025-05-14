@@ -1,22 +1,43 @@
 <template>
 	<view class="container">
-		<view class="form-item">
-			<text class="label">用户名</text>
-			<input class="input" type="text" v-model="username" placeholder="请输入用户名" />
+		<view class="login-header">
+			<image class="logo" src="/static/logo.png" mode="aspectFit"></image>
+			<text class="title">智能商城</text>
 		</view>
-		<view class="form-item">
-			<text class="label">密码</text>
-			<input class="input" type="password" v-model="password" placeholder="请输入密码" />
+
+		<view class="login-card">
+			<view class="welcome-text">
+				<text class="welcome-title">欢迎登录</text>
+				<text class="welcome-subtitle">请使用您的账号登录系统</text>
+			</view>
+
+			<view class="form-item">
+				<view class="input-icon">👤</view>
+				<input class="input" type="text" v-model="username" placeholder="请输入用户名" />
+			</view>
+
+			<view class="form-item">
+				<view class="input-icon">🔒</view>
+				<input class="input" type="password" v-model="password" placeholder="请输入密码" />
+			</view>
+
+			<view class="remember-password">
+				<checkbox :checked="rememberPassword" @click="rememberPassword = !rememberPassword" color="#007AFF" />
+				<text class="remember-text" @click="rememberPassword = !rememberPassword">记住密码</text>
+			</view>
+
+			<view class="error-message" v-if="errorMessage">{{ errorMessage }}</view>
+
+			<button class="btn-login" @click="login" hover-class="btn-login-hover">登录</button>
+
+			<view class="register-link">
+				<text>还没有账号？</text>
+				<text class="link" @click="goToRegister">立即注册</text>
+			</view>
 		</view>
-		<view class="remember-password">
-			<checkbox :checked="rememberPassword" @click="rememberPassword = !rememberPassword" />
-			<text class="remember-text" @click="rememberPassword = !rememberPassword">记住密码</text>
-		</view>
-		<view class="error-message" v-if="errorMessage">{{ errorMessage }}</view>
-		<button class="btn-login" @click="login">登录</button>
-		<view class="register-link">
-			<text>还没有账号？</text>
-			<text class="link" @click="goToRegister">立即注册</text>
+
+		<view class="login-footer">
+			<text>© 2023 智能商城系统</text>
 		</view>
 	</view>
 </template>
@@ -198,50 +219,130 @@
 
 <style>
 .container {
-    padding: 20px;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+}
+
+.login-header {
+    padding: 40px 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.logo {
+    width: 80px;
+    height: 80px;
+    margin-bottom: 10px;
+}
+
+.title {
+    font-size: 24px;
+    font-weight: bold;
+    color: #333;
+}
+
+.login-card {
+    margin: 0 20px;
+    padding: 30px 20px;
+    background-color: #fff;
+    border-radius: 12px;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+    animation: fadeIn 0.8s ease-in-out;
+}
+
+.welcome-text {
+    text-align: center;
+    margin-bottom: 25px;
+}
+
+.welcome-title {
+    display: block;
+    font-size: 22px;
+    font-weight: bold;
+    color: #333;
+    margin-bottom: 5px;
+}
+
+.welcome-subtitle {
+    display: block;
+    font-size: 14px;
+    color: #666;
 }
 
 .form-item {
-    margin-bottom: 15px;
+    margin-bottom: 20px;
+    position: relative;
 }
 
-.label {
-    display: block;
-    margin-bottom: 5px;
-    font-size: 14px;
+.input-icon {
+    position: absolute;
+    left: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 18px;
+    color: #999;
 }
 
 .input {
     width: 100%;
-    height: 40px;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-    padding: 0 10px;
+    height: 48px;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    padding: 0 15px 0 40px;
+    font-size: 16px;
+    transition: all 0.3s ease;
+    background-color: #f9f9f9;
+}
+
+.input:focus {
+    border-color: #007AFF;
+    background-color: #fff;
+    box-shadow: 0 0 0 2px rgba(0, 122, 255, 0.1);
 }
 
 .btn-login {
-    margin-top: 20px;
-    background-color: #007AFF;
+    margin-top: 25px;
+    background: linear-gradient(to right, #007AFF, #00c6ff);
     color: white;
+    height: 48px;
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: bold;
+    box-shadow: 0 4px 10px rgba(0, 122, 255, 0.2);
+    transition: all 0.3s ease;
+}
+
+.btn-login-hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 15px rgba(0, 122, 255, 0.3);
+    opacity: 0.9;
 }
 
 .error-message {
-    color: red;
+    color: #ff3b30;
     margin-top: 10px;
     font-size: 14px;
-}
-/* 保持原有样式不变，添加注册链接的样式 */
-.register-link {
-    margin-top: 20px;
     text-align: center;
+    animation: shake 0.5s ease-in-out;
+}
+
+.register-link {
+    margin-top: 25px;
+    text-align: center;
+    font-size: 14px;
 }
 
 .link {
     color: #007AFF;
     margin-left: 5px;
+    font-weight: bold;
 }
 
-/* 保持原有样式，添加记住密码选项的样式 */
 .remember-password {
     display: flex;
     align-items: center;
@@ -251,5 +352,31 @@
 .remember-text {
     margin-left: 5px;
     font-size: 14px;
+    color: #666;
+}
+
+.login-footer {
+    margin-top: auto;
+    padding: 20px 0;
+    text-align: center;
+    font-size: 12px;
+    color: #999;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
+    20%, 40%, 60%, 80% { transform: translateX(5px); }
 }
 </style>

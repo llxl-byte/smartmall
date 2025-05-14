@@ -85,8 +85,8 @@
 				chatHistory: [],
 				faqs: [],
 				scrollTop: 0,
-				userAvatar: '/static/user_avatar.png',
-				systemAvatar: '/static/service_avatar.png',
+				userAvatar: '/static/default-avatar.png',
+				systemAvatar: '/static/robot.png',
 				showFaqs: false,
 				isTyping: false
 			}
