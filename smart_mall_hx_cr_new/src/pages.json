@@ -132,6 +132,12 @@
 			"style": {
 				"navigationBarTitleText": "浏览历史"
 			}
+		},
+		{
+			"path": "pages/more/more",
+			"style": {
+				"navigationBarTitleText": "更多商品"
+			}
 		}
 	],
 	"globalStyle": {

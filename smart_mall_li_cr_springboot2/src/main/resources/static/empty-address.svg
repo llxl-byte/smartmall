@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="200px" height="200px" viewBox="0 0 200 200" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <title>Empty Address</title>
+    <g id="Empty-Address" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <circle id="Background" fill="#F5F5F5" cx="100" cy="100" r="100"></circle>
+        <g id="Address-Icon" transform="translate(50.000000, 40.000000)" fill="#CCCCCC" fill-rule="nonzero">
+            <path d="M50,0 C77.6142375,0 100,22.3857625 100,50 C100,77.6142375 77.6142375,100 50,100 C22.3857625,100 0,77.6142375 0,50 C0,22.3857625 22.3857625,0 50,0 Z M50,10 C27.90861,10 10,27.90861 10,50 C10,72.09139 27.90861,90 50,90 C72.09139,90 90,72.09139 90,50 C90,27.90861 72.09139,10 50,10 Z" id="Circle"></path>
+            <path d="M50,20 C63.8071187,20 75,31.1928813 75,45 C75,52.7467051 71.3333333,59.4133718 65,65 L50,80 L35,65 C28.6666667,59.4133718 25,52.7467051 25,45 C25,31.1928813 36.1928813,20 50,20 Z M50,30 C41.7157288,30 35,36.7157288 35,45 C35,53.2842712 41.7157288,60 50,60 C58.2842712,60 65,53.2842712 65,45 C65,36.7157288 58.2842712,30 50,30 Z" id="Pin"></path>
+        </g>
+    </g>
+</svg>

@@ -90,7 +90,7 @@
 		<!-- 分类商品列表 -->
 		<view class="item-list">
 			<view class="section-header" v-if="itemList.length > 0">
-				<text class="section-title">为您推荐</text>
+				<text class="section-title">分类商品</text>
 			</view>
 			<view
 				class="item-card"
@@ -98,7 +98,7 @@
 				:key="index"
 				@click="goToDetail(item.id)"
 			>
-				<image class="item-image" :src="item.mainImage || '../../static/小米15Pro.png'"></image>
+				<image class="item-image" :src="item.mainImage || '../../static/Xiaomi15Pro.png'"></image>
 				<view class="item-info">
 					<view class="item-name">{{item.name}}</view>
 					<view class="item-price">¥{{item.price}}</view>
@@ -167,6 +167,7 @@ export default {
 				uni.request({
 					url: `${API_BASE_URL}/selectAll`,
 					success: (res) => {
+						console.log('获取分类列表成功', res);
 						if (res.data && res.data.length > 0) {
 							this.categoryList = res.data;
 							// 默认选中第一个分类
@@ -195,30 +196,30 @@ export default {
 				const mockItems = [
 					{
 						id: 7,
-						name: '华为Mate70',
+						name: 'HuaWei-Mate70',
 						price: 6999,
-						mainImage: '../../static/华为Mate70.jpg',
+						mainImage: '../../static/HuaWei-Mate70.jpg',
 						sales: 200
 					},
 					{
 						id: 8,
-						name: '华为P70',
+						name: 'HuaWei-P70',
 						price: 7999,
-						mainImage: '../../static/华为P70.jpg',
+						mainImage: '../../static/HuaWei-P70.jpg',
 						sales: 150
 					},
 					{
 						id: 9,
-						name: '小米15Ultra',
+						name: 'Xiaomi15Ultra',
 						price: 8999,
-						mainImage: '../../static/小米15Ultra.png',
+						mainImage: '../../static/Xiaomi15Ultra.png',
 						sales: 100
 					},
 					{
 						id: 10,
-						name: '小米15Pro',
+						name: 'Xiaomi15Pro',
 						price: 9999,
-						mainImage: '../../static/小米15Pro.png',
+						mainImage: '../../static/Xiaomi15Pro.png',
 						sales: 50
 					}
 				];
@@ -342,23 +343,23 @@ export default {
 				const mockHotItems = [
 					{
 						id: 1,
-						name: '小米15',
+						name: 'Xiaomi15',
 						price: 999,
-						mainImage: '../../static/小米15.png',
+						mainImage: '../../static/Xiaomi15.png',
 						sales: 1000
 					},
 					{
 						id: 2,
-						name: '惠普暗影精灵10',
+						name: 'HP-Shadow-Eif1010',
 						price: 1999,
-						mainImage: '../../static/惠普暗影精灵10.jpg',
+						mainImage: '../../static/HP-Shadow-Eif1010.jpg',
 						sales: 800
 					},
 					{
 						id: 3,
-						name: '机械革命蛟龙16',
+						name: 'Mechrevo-Dragon16',
 						price: 2999,
-						mainImage: '../../static/机械革命蛟龙16.jpg',
+						mainImage: '../../static/Mechrevo-Dragon16.jpg',
 						sales: 600
 					}
 				];
@@ -398,23 +399,23 @@ export default {
 				const mockRecommendItems = [
 					{
 						id: 4,
-						name: '小米15Pro',
+						name: 'Xiaomi15Pro',
 						price: 3999,
-						mainImage: '../../static/小米15Pro.png',
+						mainImage: '../../static/Xiaomi15Pro.png',
 						sales: 500
 					},
 					{
 						id: 5,
-						name: '华为Mate70',
+						name: 'HuaWei-Mate70',
 						price: 4999,
-						mainImage: '../../static/华为Mate70.jpg',
+						mainImage: '../../static/HuaWei-Mate70.jpg',
 						sales: 400
 					},
 					{
 						id: 6,
-						name: '华为P70',
+						name: 'HuaWei-P70',
 						price: 5999,
-						mainImage: '../../static/华为P70.jpg',
+						mainImage: '../../static/HuaWei-P70.jpg',
 						sales: 300
 					}
 				];

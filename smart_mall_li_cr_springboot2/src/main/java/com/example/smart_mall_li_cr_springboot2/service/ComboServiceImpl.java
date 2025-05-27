@@ -1,10 +1,9 @@
-package com.example.smart_mall_li_cr_springboot2.service.impl;
+package com.example.smart_mall_li_cr_springboot2.service;
 
 import com.example.smart_mall_li_cr_springboot2.mapper.ComboItemMapper; // 假设有 ComboItemMapper
 import com.example.smart_mall_li_cr_springboot2.mapper.ComboMapper; // 假设有 ComboMapper
 import com.example.smart_mall_li_cr_springboot2.pojo.Combo; // 假设有 Combo 实体类
 import com.example.smart_mall_li_cr_springboot2.pojo.ComboItem; // 假设有 ComboItem 实体类
-import com.example.smart_mall_li_cr_springboot2.service.ComboService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional; // 可能需要事务管理

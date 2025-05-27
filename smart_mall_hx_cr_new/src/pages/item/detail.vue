@@ -221,15 +221,31 @@ export default {
 					success: (res) => {
 						if (res.data) {
 							this.item = res.data;
-							// 处理商品图片
+							// 处理商品图片路径
+							const processImageUrl = (url) => {
+								if (!url) return url;
+								// 如果已经是完整URL则直接返回
+								if (url.startsWith('http')) return url;
+								// 处理相对路径
+								if (url.startsWith('/static/')) return url;
+								// 其他情况添加/static/前缀
+								return `/static/${url}`;
+							};
+
+							// 处理主图
 							if (this.item.mainImage) {
-								this.itemImages = [this.item.mainImage];
+								this.itemImages = [processImageUrl(this.item.mainImage)];
+								console.log('处理后的主图路径:', this.itemImages[0]);
 							}
+							
+							// 处理图片数组
 							if (this.item.images) {
 								try {
 									const imagesArray = JSON.parse(this.item.images);
 									if (Array.isArray(imagesArray) && imagesArray.length > 0) {
-										this.itemImages = [...this.itemImages, ...imagesArray];
+										const processedImages = imagesArray.map(img => processImageUrl(img));
+										this.itemImages = [...this.itemImages, ...processedImages];
+										console.log('处理后的图片数组:', processedImages);
 									}
 								} catch (e) {
 									console.error('解析商品图片数组失败', e);
@@ -238,7 +254,8 @@ export default {
 
 							// 如果没有图片，使用默认图片
 							if (this.itemImages.length === 0) {
-								this.itemImages = ['/static/default-avatar.png']; // 使用存在的默认头像作为占位图
+								this.itemImages = ['/static/default-avatar.png'];
+								console.log('使用默认图片');
 							}
 
 							// 加载商品评价

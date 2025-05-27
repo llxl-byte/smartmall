@@ -8,7 +8,7 @@
     <el-table :data="filteredItems" style="width: 100%" class="item-table">
       <el-table-column prop="id" label="ID" width="80" />
       <el-table-column prop="name" label="商品名称" width="200" />
-      <el-table-column prop="category" label="分类" width="120" />
+      <el-table-column prop="categoryName" label="分类" width="120" />
       <el-table-column prop="price" label="价格 (¥)" width="100" />
       <el-table-column prop="stock" label="库存" width="100" />
       <el-table-column label="图片" width="120">
@@ -48,8 +48,8 @@
         <el-form-item label="商品名称" prop="name">
           <el-input v-model="itemForm.name" placeholder="请输入商品名称" />
         </el-form-item>
-        <el-form-item label="分类" prop="category">
-          <el-select v-model="itemForm.category" placeholder="请选择分类">
+        <el-form-item label="分类" prop="categoryId">
+          <el-select v-model="itemForm.categoryId" placeholder="请选择分类">
             <el-option v-for="cat in categories" :key="cat.value" :label="cat.label" :value="cat.value" />
           </el-select>
         </el-form-item>
@@ -189,10 +189,16 @@ const fetchItems = async () => {
       // 将后端返回的商品数据转换为前端需要的格式
       items.value = data.data.map(item => {
         console.log('商品图片URL:', item.mainImage);
+        // 查找对应的分类对象
+        const category = categories.value.find(cat => cat.value === item.categoryId.toString());
+        // 获取分类名称，如果找不到则显示分类ID或者其他提示
+        const categoryName = category ? category.label : '未知分类';
+
         return {
           id: item.id,
           name: item.name,
-          category: item.categoryId ? item.categoryId.toString() : '', // 暂时使用分类ID，后续可以获取分类名称
+          categoryId: item.categoryId, // 保留categoryId，可能在编辑时需要
+          categoryName: categoryName, // 添加分类名称字段
           price: item.price,
           stock: item.stock,
           description: item.description || '',

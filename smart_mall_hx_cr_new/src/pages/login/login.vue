@@ -18,7 +18,8 @@
 
 			<view class="form-item">
 				<view class="input-icon">🔒</view>
-				<input class="input" type="password" v-model="password" placeholder="请输入密码" />
+				<view class="toggle-password-icon" @click="togglePasswordVisibility">️‍️️👁️‍🗨️</view>
+				<input class="input" v-model="password" :type="passwordVisibility?'text':'password'"placeholder="请输入密码" />
 			</view>
 
 			<view class="remember-password">
@@ -50,6 +51,7 @@
 			return {
 				username: '',
 				password: '',
+				passwordVisibility: false,
 				rememberPassword: false,
 				errorMessage: '',
 				baseUrl: ''
@@ -207,6 +209,9 @@
 					}
 				});
 			},
+			togglePasswordVisibility() {
+				this.passwordVisibility = !this.passwordVisibility;
+			},
 			goToRegister() {
 				// 跳转到注册页面
 				uni.navigateTo({
@@ -297,12 +302,22 @@
     font-size: 16px;
     transition: all 0.3s ease;
     background-color: #f9f9f9;
+	box-sizing: border-box;
 }
 
 .input:focus {
     border-color: #007AFF;
     background-color: #fff;
     box-shadow: 0 0 0 2px rgba(0, 122, 255, 0.1);
+}
+
+.toggle-password-icon{
+	position: absolute;
+    right: 10px;
+    top: 50%;
+	transform: translateY(-50%);
+    cursor: pointer;
+   
 }
 
 .btn-login {

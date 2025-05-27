@@ -35,12 +35,13 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers(
                     "/mallUserLogin",
                     "/mallUserRegister",
-                    "/updateUserInfo",
+//                    "/updateUserInfo",
                     "/uploadAvatar",
                     "/admin/login", // 管理员登录接口
                     "/admin/users/**", // 用户管理接口（临时允许匿名访问，用于测试）
                     "/admin/users/{userId}/status", // 用户状态更新接口（临时允许匿名访问，用于测试）
                     "/admin/items/**", // 商品管理接口（临时允许匿名访问，用于测试）
+                    "/static/**", // 静态资源访问（临时允许匿名访问，用于测试）
                     "/admin/orders/**", // 订单管理接口（临时允许匿名访问，用于测试）
                     "/admin/combos/**", // 套餐管理接口（临时允许匿名访问，用于测试）
                     "/selectAll",   // 分类查询接口

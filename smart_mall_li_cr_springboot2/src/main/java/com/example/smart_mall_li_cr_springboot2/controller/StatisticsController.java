@@ -114,7 +114,7 @@ public class StatisticsController {
             List<Map<String, Object>> salesData = new ArrayList<>();
 
             // 模拟热门商品销量数据
-            String[] names = {"小米15Ultra", "华为Mate60", "iPhone 15", "OPPO Find X", "vivo X100"};
+            String[] names = {"Xiaomi15Ultra", "HuaWei-Mate60", "iPhone 15", "OPPO Find X", "vivo X100"};
             int[] values = {320, 302, 301, 290, 250};
 
             for (int i = 0; i < names.length; i++) {

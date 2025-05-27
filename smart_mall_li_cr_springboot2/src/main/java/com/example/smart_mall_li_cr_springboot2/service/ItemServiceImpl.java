@@ -5,12 +5,14 @@ import com.example.smart_mall_li_cr_springboot2.pojo.Item;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
 import java.io.IOException;
+import java.security.Key;
 import java.util.List;
 import java.util.UUID;
 @Service
@@ -43,18 +45,21 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
+    @CacheEvict(value = {"category","item"},allEntries = true)
     public int addItem(Item item) {
         // 在这里可以添加一些业务逻辑，例如参数校验等
         return itemMapper.insertSelective(item);
     }
 
     @Override
+    @CacheEvict(value = {"category", "item"}, allEntries = true)
     public int updateItem(Item item) {
         // 在这里可以添加一些业务逻辑，例如参数校验等
         return itemMapper.updateByPrimaryKeySelective(item);
     }
 
     @Override
+    @CacheEvict(value = {"category", "item"}, allEntries = true)
     public int deleteItem(Long itemId) {
         return itemMapper.deleteByPrimaryKey(itemId);
     }

@@ -83,6 +83,22 @@
         "list_projects",
         "list_project_files"
       ]
+    },
+    "memory": {
+      "command": "cmd",
+      "args": [
+        "/c",
+        "npx",
+        "-y",
+        "@modelcontextprotocol/server-memory"
+      ],
+      "env": {
+        "PATH": "%PATH%",
+        "APPDATA": "C:\\Users\\ll.xl\\AppData\\Roaming",
+        "MEMORY_FILE_PATH": "d:\\GraduationProject\\test\\smartmall\\mcp_memory\\memory.json"
+      },
+      "disabled": false,
+      "alwaysAllow": []
     }
   }
-} 
+}

@@ -7,11 +7,14 @@ import com.example.smart_mall_li_cr_springboot2.pojo.MallUserRegisterParam;
 import com.example.smart_mall_li_cr_springboot2.service.MallUserService;
 import com.example.smart_mall_li_cr_springboot2.util.JwtUtil;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.oauth2.client.test.OAuth2ContextConfiguration;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
 import java.io.IOException;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.List;
 import java.util.UUID;
 
@@ -109,31 +112,47 @@ public class MallUserController {
     }
 
     @PostMapping("/updateUserInfo")
-    public Result<Boolean> updateUserInfo(@RequestBody MallUser user) {
+    public Result<Boolean> updateUserInfo(
+            @RequestParam(required = true) Integer userID,
+            @RequestParam(required = false) String nickname,
+            @RequestParam(required = false) String phone,
+            @RequestParam(required = false) String avatar,
+            @RequestParam(required = false) String gender,
+            @RequestParam(required = false) String birthday) {
         try {
-            System.out.println("接收到更新用户信息请求: " + user);
-
             // 验证用户ID
-            if (user.getId() == null) {
+            if (userID == null) {
                 return new Result<>(false, "缺少用户ID", false);
             }
 
             // 查询用户是否存在
-            MallUser existingUser = mallUserService.getMallUserById(user.getId());
+            MallUser existingUser = mallUserService.getMallUserById(userID);
             if (existingUser == null) {
                 return new Result<>(false, "用户不存在", false);
             }
 
-            // 保留原有信息，只更新提供的字段
-            if (user.getNickname() == null) {
-                user.setNickname(existingUser.getNickname());
+            // 创建更新对象，只更新提供的字段
+            MallUser user = new MallUser();
+            user.setId(userID);
+            user.setNickname(nickname != null ? nickname : existingUser.getNickname());
+            user.setPhone(phone != null ? phone : existingUser.getPhone());
+            user.setAvatar(avatar != null ? avatar : existingUser.getAvatar());
+            user.setGender(gender != null ? gender : existingUser.getGender());
+            
+            // 处理birthday字段的日期转换
+            if (birthday != null) {
+                try {
+                    SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+                    user.setBirthday(sdf.parse(birthday));
+                } catch (ParseException e) {
+                    return new Result<>(false, "生日格式不正确，请使用yyyy-MM-dd格式", false);
+                }
+            } else {
+                user.setBirthday(existingUser.getBirthday());
             }
-            if (user.getPhone() == null) {
-                user.setPhone(existingUser.getPhone());
-            }
-            if (user.getAvatar() == null) {
-                user.setAvatar(existingUser.getAvatar());
-            }
+            
+            // 保留username不变，防止被修改
+            user.setUsername(existingUser.getUsername());
 
             boolean updated = mallUserService.updateUserInfo(user);
             if (updated) {

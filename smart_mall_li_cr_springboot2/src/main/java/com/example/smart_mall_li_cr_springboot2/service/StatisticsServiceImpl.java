@@ -1,13 +1,11 @@
-package com.example.smart_mall_li_cr_springboot2.service.impl;
+package com.example.smart_mall_li_cr_springboot2.service;
 
 import com.example.smart_mall_li_cr_springboot2.mapper.MallOrderMapper; // 可能需要
 import com.example.smart_mall_li_cr_springboot2.mapper.MallUserMapper; // 可能需要
 import com.example.smart_mall_li_cr_springboot2.mapper.UserBehaviorMapper; // 可能需要
-import com.example.smart_mall_li_cr_springboot2.service.StatisticsService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;

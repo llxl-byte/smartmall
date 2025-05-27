@@ -18,12 +18,14 @@
 
 			<view class="form-item">
 				<view class="input-icon">🔒</view>
-				<input class="input" v-model="password" type="password" placeholder="请输入密码"/>
+				<view class="toggle-password-icon" @click="togglePasswordVisibility">🍳</view>
+				<input class="input" v-model="password" :type="passwordVisible?'text':'password'" placeholder="请输入密码"/>
 			</view>
 
 			<view class="form-item">
 				<view class="input-icon">✅</view>
-				<input class="input" v-model="confirmPassword" type="password" placeholder="请再次输入密码"/>
+				<view class="toggle-password-icon" @click="togglePasswordVisibility">🍳</view>
+				<input class="input" v-model="confirmPassword" :type="passwordVisible ? 'text' : 'password'" placeholder="请再次输入密码"/>
 			</view>
 
 			<view class="error-message" v-if="errorMessage">{{errorMessage}}</view>
@@ -48,6 +50,7 @@ data() {
 	return {
 		username:"",
 		password:"",
+		passwordVisible: false,
 		confirmPassword:"",
 		errorMessage: "",
 		baseUrl: ''
@@ -135,6 +138,9 @@ methods: {
 		})
 	},
 
+	togglePasswordVisibility(){
+		this.passwordVisible = !this.passwordVisible;
+	},
 	goToLogin() {
 		// 跳转到登录页面
 		uni.navigateTo({
@@ -225,6 +231,7 @@ methods: {
     font-size: 16px;
     transition: all 0.3s ease;
     background-color: #f9f9f9;
+	box-sizing: border-box; 
 }
 
 .input:focus {
@@ -232,6 +239,19 @@ methods: {
     background-color: #fff;
     box-shadow: 0 0 0 2px rgba(0, 122, 255, 0.1);
 }
+
+.toggle-password-icon {
+    position: absolute;
+    right: 15px; /* 调整到距离右边框的距离 */
+    top: 50%;
+    
+    transform: translateY(-50%);
+    font-size: 18px;
+    color: #999; /* 可以选择一个合适的颜色 */
+    /* 添加 cursor: pointer; 让鼠标悬停时显示手型，表示可点击 */
+    cursor: pointer;
+}
+
 
 .btn-register {
     margin-top: 25px;

@@ -190,8 +190,9 @@
 
     <update id="updateUserInfo" parameterType="com.example.smart_mall_li_cr_springboot2.pojo.MallUser">
         UPDATE mall_user
-        SET nickname = #{nickname},
-            phone = #{phone}
+        SET username=#{username},password=#{password},nickname = #{nickname},phone = #{phone},avatar=#{avatar},gender=#{gender},
+            birthday=#{birthday},last_login_time=#{lastLoginTime},status=#{status},qq_openid=#{qqOpenid},create_time=#{createTime},
+            update_time=#{updateTime}
         WHERE id = #{id}
     </update>
 </mapper>
