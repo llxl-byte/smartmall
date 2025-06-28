@@ -1,5 +1,7 @@
 package com.example.smart_mall_li_cr_springboot2.pojo;
 
+import io.swagger.annotations.ApiModelProperty;
+
 import java.util.Date;
 
 /**
@@ -10,11 +12,13 @@ public class MallUser {
     /**
      * 
      */
+
     private Integer id;
 
     /**
      * 
      */
+    @ApiModelProperty(value = "用户名",example = "user1")
     private String username;
 
     /**
@@ -25,6 +29,7 @@ public class MallUser {
     /**
      * 
      */
+    @ApiModelProperty(value = "手机号")
     private String phone;
 
     /**
@@ -60,6 +65,7 @@ public class MallUser {
     /**
      * 
      */
+    @ApiModelProperty(value = "qq")
     private String qqOpenid;
 
     /**

@@ -31,7 +31,7 @@
         select
         <include refid="Base_Column_List" />
         from item
-        where  id = #{id} 
+        where  id = #{id}
     </select>
     <select id="selectByCategoryId" parameterType="java.lang.Integer" resultMap="BaseResultMap">
         SELECT i.* FROM item i
@@ -53,7 +53,7 @@
 
     <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
         delete from item
-        where  id = #{id} 
+        where  id = #{id}
     </delete>
     <insert id="insert" keyColumn="id" keyProperty="id" parameterType="com.example.smart_mall_li_cr_springboot2.pojo.Item" useGeneratedKeys="true">
         insert into item
@@ -142,11 +142,11 @@
                     update_time = #{updateTime},
                 </if>
         </set>
-        where   id = #{id} 
+        where   id = #{id}
     </update>
     <update id="updateByPrimaryKey" parameterType="com.example.smart_mall_li_cr_springboot2.pojo.Item">
         update item
-        set 
+        set
             name =  #{name},
             price =  #{price},
             original_price =  #{originalPrice},
@@ -160,6 +160,67 @@
             is_on_sale =  #{isOnSale},
             create_time =  #{createTime},
             update_time =  #{updateTime}
-        where   id = #{id} 
+        where   id = #{id}
     </update>
+
+    <select id="findByIdForUpdate" resultType="com.example.smart_mall_li_cr_springboot2.pojo.Item">
+        SELECT
+            id, name, price, stock, main_image -- 选择需要的列
+        FROM
+            item
+        WHERE
+            id = #{id}
+        FOR UPDATE -- 添加行级锁
+    </select>
+
+    <select id="findById" resultType="com.example.smart_mall_li_cr_springboot2.pojo.Item">
+        SELECT
+            id, name, price, stock, main_image -- 选择需要的列
+        FROM
+            item
+        WHERE
+            id = #{id}
+    </select>
+
+    <update id="decreaseStock">
+        UPDATE item
+        SET
+            stock = stock - #{quantity}
+        WHERE
+            id = #{id}
+          AND stock >= #{quantity} -- 乐观锁：确保库存足够才更新
+    </update>
+
+    <!-- 按销量降序查询商品 -->
+    <select id="selectBySalesDesc" resultMap="BaseResultMap">
+        SELECT
+        <include refid="Base_Column_List" />
+        FROM item
+        WHERE is_on_sale = 1
+        ORDER BY sales DESC
+        <if test="limit != null">
+            LIMIT #{limit}
+        </if>
+    </select>
+
+    <!-- 按分类和销量降序查询商品 -->
+    <select id="selectByCategoryIdAndSalesDesc" resultMap="BaseResultMap">
+        SELECT i.*
+        FROM item i
+        JOIN category c ON i.category_id = c.id
+        WHERE (c.id = #{categoryId} OR c.parent_id = #{categoryId})
+        AND i.is_on_sale = 1
+        ORDER BY i.sales DESC
+        <if test="limit != null">
+            LIMIT #{limit}
+        </if>
+    </select>
+
+    <!-- 查询所有商品 -->
+    <select id="selectAll" resultMap="BaseResultMap">
+        SELECT
+        <include refid="Base_Column_List" />
+        FROM item
+        ORDER BY id DESC
+    </select>
 </mapper>

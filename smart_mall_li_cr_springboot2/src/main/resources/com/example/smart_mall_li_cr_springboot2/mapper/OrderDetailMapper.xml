@@ -25,12 +25,12 @@
         select
         <include refid="Base_Column_List" />
         from order_detail
-        where  id = #{id} 
+        where  id = #{id}
     </select>
 
     <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
         delete from order_detail
-        where  id = #{id} 
+        where  id = #{id}
     </delete>
     <insert id="insert" keyColumn="id" keyProperty="id" parameterType="com.example.smart_mall_li_cr_springboot2.pojo.OrderDetail" useGeneratedKeys="true">
         insert into order_detail
@@ -92,11 +92,11 @@
                     create_time = #{createTime},
                 </if>
         </set>
-        where   id = #{id} 
+        where   id = #{id}
     </update>
     <update id="updateByPrimaryKey" parameterType="com.example.smart_mall_li_cr_springboot2.pojo.OrderDetail">
         update order_detail
-        set 
+        set
             order_id =  #{orderId},
             item_id =  #{itemId},
             quantity =  #{quantity},
@@ -105,6 +105,35 @@
             item_name =  #{itemName},
             item_image =  #{itemImage},
             create_time =  #{createTime}
-        where   id = #{id} 
+        where   id = #{id}
     </update>
+
+    <select id="selectByOrderId" resultMap="BaseResultMap">
+        SELECT
+        <include refid="Base_Column_List" />
+        FROM order_detail
+        WHERE order_id = #{orderId}
+        ORDER BY id ASC
+    </select>
+
+    <insert id="batchInsert" parameterType="java.util.List">
+        INSERT INTO order_detail
+        (order_id, item_id, quantity, price, total_price, item_name, item_image, create_time)
+        VALUES
+        <foreach collection="list" item="item" separator=",">
+            (#{item.orderId}, #{item.itemId}, #{item.quantity}, #{item.price},
+            #{item.totalPrice}, #{item.itemName}, #{item.itemImage},
+            <if test="item.createTime != null">#{item.createTime}</if>
+            <if test="item.createTime == null">NOW()</if>
+            )
+        </foreach>
+    </insert>
+
+    <!-- 检查订单是否包含指定商品 -->
+    <select id="checkOrderContainsItem" resultType="boolean">
+        SELECT COUNT(1) > 0
+        FROM order_detail
+        WHERE order_id = #{orderId}
+        AND item_id = #{itemId}
+    </select>
 </mapper>

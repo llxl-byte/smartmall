@@ -5,64 +5,96 @@ import com.example.smart_mall_li_cr_springboot2.mapper.MallUserMapper;
 import com.example.smart_mall_li_cr_springboot2.pojo.MallUser;
 import com.example.smart_mall_li_cr_springboot2.pojo.MallUserLoginParam;
 import com.example.smart_mall_li_cr_springboot2.pojo.MallUserRegisterParam;
+
+import java.util.List; // 新增导入
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-@Service//为类创建对象，把对象放在容器中
+@Service
 public class MallUserServiceImpl implements MallUserService {
+    @Autowired
+    private MallUserMapper mallUserMapper;
 
-    @Autowired//从容器中找个对象赋值给mallUserMapper
-    MallUserMapper mallUserMapper;
     @Override
     public boolean mallUserRegister(MallUserRegisterParam mallUserRegisterParam) {
-        MallUser mallUser = mallUserMapper.selectByUsername(mallUserRegisterParam.getUsername());//个人认为直接填入变量也可以，但是不安全，不好更改
-        if(mallUser==null){
-            //用户不存在，保存用户信息
-            MallUser insertMallUser = new MallUser();
-            //设置实体类insertMallUser的用户名和密码
-            insertMallUser.setUsername(mallUserRegisterParam.getUsername());
-            insertMallUser.setPassword(mallUserRegisterParam.getPassword());
-            //保存用户信息到数据库
-            int insertRows = mallUserMapper.insertSelective(insertMallUser);
-            if(insertRows>0){
-                return true;
-            }else{
-                return false;
+        try {
+            // 检查用户名是否已存在
+            MallUser existingUser = mallUserMapper.selectByUsername(mallUserRegisterParam.getUsername());
+            if (existingUser != null) {
+                return false; // 用户名已存在
             }
-        }
-            //用户存在，返回false
-            return false;
-    }
 
-//    @Override
-//    public MallUser mallUserLogin(MallUserLoginParam mallUserLoginParam) {
-//        MallUser mallUser = mallUserMapper.selectByUsername(mallUserLoginParam.getUsername());
-//        if(mallUser!=null){
-//            //用户存在，判断密码是否正确
-//            String password = mallUser.getPassword();
-//            if(password.equals(mallUserLoginParam.getPassword())){
-//                return mallUser;
-//            }else{
-//                return"用户名或密码错误";
-//            }
-//        }
-//        //用户不存在，返回提示信息
-//            return "用户不存在";
-//    }
+            // 检查手机号是否已存在（如果提供了手机号）
+            if (mallUserRegisterParam.getPhone() != null && !mallUserRegisterParam.getPhone().isEmpty()) {
+                // 这里需要添加一个根据手机号查询用户的方法
+                // 暂时可以跳过这个检查，或者在数据库层面处理
+            }
+
+            return mallUserMapper.mallUserRegister(mallUserRegisterParam);
+        } catch (Exception e) {
+            System.err.println("注册失败: " + e.getMessage());
+            e.printStackTrace();
+            return false;
+        }
+    }
 
     @Override
     public Result mallUserLogin(MallUserLoginParam mallUserLoginParam) {
-        MallUser mallUser = mallUserMapper.selectByUsername(mallUserLoginParam.getUsername());
-
-        if (mallUser == null) {
-            return new Result(false, "用户不存在");
+        MallUser user = mallUserMapper.mallUserLogin(mallUserLoginParam);
+        if (user != null) {
+            return new Result(true, "登录成功", user);
         }
-
-        if (mallUser.getPassword().equals(mallUserLoginParam.getPassword())) {
-            return new Result(true, "登录成功", mallUser);
-        } else {
-            return new Result(false, "用户名或密码错误");
-        }
+        return new Result(false, "用户名或密码错误");
     }
 
+    @Override
+    public boolean updateUserAvatar(Integer userId, String avatarUrl) {
+        return mallUserMapper.updateUserAvatar(userId, avatarUrl);
+    }
+
+    @Override
+    public boolean updateUserInfo(MallUser user) {
+        return mallUserMapper.updateUserInfo(user);
+    }
+
+    @Override
+    public List<MallUser> getAllUsers(Integer pageNum, Integer pageSize) {
+        // TODO: 实现分页逻辑
+        // 实际项目中，这里应该调用Mapper进行分页查询
+        // 例如，使用PageHelper:
+        // if (pageNum != null && pageSize != null) {
+        //     PageHelper.startPage(pageNum, pageSize);
+        // }
+        // return mallUserMapper.selectAllUsers(); // 假设有一个selectAllUsers方法
+        // 当前mallUserMapper已经添加了selectAll方法
+        return mallUserMapper.selectAll();
+    }
+
+    @Override
+    public MallUser getMallUserById(Integer userId) {
+        // 调用Mapper根据主键查询用户
+        return mallUserMapper.selectByPrimaryKey(userId);
+    }
+
+    @Override
+    public boolean updateUserStatus(Integer userId, Boolean isActive) {
+        if (userId == null || isActive == null) {
+            // 参数无效
+            return false;
+        }
+        MallUser user = mallUserMapper.selectByPrimaryKey(userId);
+        if (user == null) {
+            // 用户不存在
+            return false;
+        }
+        // 更新用户状态字段
+        // 假设 MallUser 实体中有一个 status 字段，0 表示禁用，1 表示启用
+        user.setStatus(isActive ? 1 : 0);
+        // 或者如果 MallUser 实体中有一个 boolean 类型的 isActive 字段
+        // user.setIsActive(isActive);
+
+        // 调用 Mapper 更新用户
+        int updatedRows = mallUserMapper.updateByPrimaryKeySelective(user);
+        return updatedRows > 0;
+    }
 }

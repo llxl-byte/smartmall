@@ -69,11 +69,26 @@
     </update>
     <update id="updateByPrimaryKey" parameterType="com.example.smart_mall_li_cr_springboot2.pojo.ComboItem">
         update combo_item
-        set 
+        set
             combo_id =  #{comboId},
             item_id =  #{itemId},
             quantity =  #{quantity},
             create_time =  #{createTime}
-        where   id = #{id} 
+        where   id = #{id}
     </update>
+
+    <!-- 根据套餐ID删除商品项 -->
+    <delete id="deleteByComboId" parameterType="java.lang.Long">
+        delete from combo_item
+        where combo_id = #{comboId}
+    </delete>
+
+    <!-- 批量插入商品项 -->
+    <insert id="batchInsert" parameterType="java.util.List">
+        insert into combo_item (combo_id, item_id, quantity, create_time)
+        values
+        <foreach collection="list" item="item" separator=",">
+            (#{item.comboId}, #{item.itemId}, #{item.quantity}, #{item.createTime})
+        </foreach>
+    </insert>
 </mapper>

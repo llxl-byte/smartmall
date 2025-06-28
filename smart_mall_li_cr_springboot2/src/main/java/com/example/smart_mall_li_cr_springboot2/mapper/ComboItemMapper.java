@@ -1,6 +1,7 @@
 package com.example.smart_mall_li_cr_springboot2.mapper;
 
 import com.example.smart_mall_li_cr_springboot2.pojo.ComboItem;
+import java.util.List;
 
 /**
 * @author ll.xl
@@ -21,5 +22,19 @@ public interface ComboItemMapper {
     int updateByPrimaryKeySelective(ComboItem record);
 
     int updateByPrimaryKey(ComboItem record);
+
+    /**
+     * 根据套餐ID删除商品项
+     * @param comboId 套餐ID
+     * @return 删除的记录数
+     */
+    int deleteByComboId(Long comboId);
+
+    /**
+     * 批量插入商品项
+     * @param comboItems 商品项列表
+     * @return 插入的记录数
+     */
+    int batchInsert(List<ComboItem> comboItems);
 
 }

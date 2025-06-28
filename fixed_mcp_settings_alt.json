@@ -1,0 +1,101 @@
+{
+  "mcpServers": {
+    "mariadb": {
+      "command": "node",
+      "args": [
+        "C:\\Users\\ll.xl\\AppData\\Roaming\\Roo-Code\\MCP\\mariadb-mcp-server\\build\\index.js"
+      ],
+      "env": {
+        "MARIADB_HOST": "127.0.0.1",
+        "MARIADB_PORT": "13306",
+        "MARIADB_USER": "root",
+        "MARIADB_PASSWORD": "1234",
+        "MARIADB_DATABASE": "smart_mall_li_cr_springboot2"
+      },
+      "disabled": false,
+      "alwaysAllow": []
+    },
+    "Browser-Tools-mcp": {
+      "command": "cmd",
+      "args": [
+        "/c",
+        "npx",
+        "-y",
+        "@agentdeskai/browser-tools-mcp@latest"
+      ],
+      "autoApprove": [],
+      "disabled": false,
+      "alwaysAllow": [
+        "getConsoleErrors",
+        "getNetworkLogs"
+      ],
+      "env": {
+        "PATH": "%PATH%",
+        "APPDATA": "C:\\Users\\ll.xl\\AppData\\Roaming"
+      }
+    },
+    "Puppeteer": {
+      "command": "cmd",
+      "args": [
+        "/c",
+        "npx",
+        "-y",
+        "@modelcontextprotocol/server-puppeteer"
+      ],
+      "env": {
+        "PATH": "C:\\Program Files\\nodejs;C:\\Users\\ll.xl\\AppData\\Roaming\\npm",
+        "APPDATA": "C:\\Users\\ll.xl\\AppData\\Roaming"
+      }
+    },
+    "Context7": {
+      "command": "cmd",
+      "args": [
+        "/c",
+        "npx",
+        "-y",
+        "@upstash/context7-mcp@latest"
+      ],
+      "disabled": false,
+      "autoApprove": [],
+      "env": {
+        "PATH": "%PATH%",
+        "APPDATA": "C:\\Users\\ll.xl\\AppData\\Roaming"
+      }
+    },
+    "firecrawl-mcp": {
+      "command": "cmd",
+      "args": [
+        "/c",
+        "npx",
+        "-y",
+        "firecrawl-mcp@0.1.0"
+      ],
+      "env": {
+        "PATH": "%PATH%",
+        "APPDATA": "C:\\Users\\ll.xl\\AppData\\Roaming"
+      }
+    },
+    "allpepper-memory-bank": {
+      "command": "cmd",
+      "args": [
+        "/c",
+        "npx",
+        "-y",
+        "@allpepper/memory-bank-mcp"
+      ],
+      "env": {
+        "PATH": "%PATH%",
+        "APPDATA": "C:\\Users\\ll.xl\\AppData\\Roaming",
+        "MEMORY_BANK_ROOT": "D:\\GraduationProject\\test\\smartmall\\memory-bank"
+      },
+      "disabled": false,
+      "autoApprove": [
+        "memory_bank_read",
+        "memory_bank_write",
+        "memory_bank_update",
+        "list_projects",
+        "list_project_files"
+      ]
+    }
+  }
+} 
